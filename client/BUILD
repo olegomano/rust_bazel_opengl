@@ -6,7 +6,7 @@ package(default_visibility = ["//visibility:public"])
 
 # collect the outputs.
 cargo_build_script(
-    name = "build_script",
+    name = "gl_build_script",
     srcs = ["build.rs"],
     # Optional environment variables passed during build.rs compilation
     rustc_env = {
@@ -26,6 +26,14 @@ rust_binary(
       "//cargo:glutin",
       "//cargo:glutin_winit",
       "//cargo:raw_window_handle",
-      ":build_script"
+      ":gl_build_script"
+    ]
+)
+
+rust_binary(
+    name = "main_2",
+    srcs = ["src/other_main.rs"],
+    deps = [
+      "//client/src/render:window"
     ]
 )

@@ -1,0 +1,182 @@
+use std::ffi::{CStr, CString};
+use std::num::NonZeroU32;
+use std::ops::Deref;
+use std::rc::{Rc, Weak};
+use winit::event::{Event, WindowEvent};
+use winit::window::WindowBuilder;
+use glutin::context::PossiblyCurrentContext;
+
+use raw_window_handle::HasRawWindowHandle;
+
+use glutin::config::ConfigTemplateBuilder;
+use glutin::context::{ContextApi, ContextAttributesBuilder, Version};
+use glutin::display::GetGlDisplay;
+use glutin::prelude::*;
+use glutin::surface::SwapInterval;
+
+use winit::event_loop::EventLoopBuilder;
+use glutin_winit::{self, DisplayBuilder, GlWindow};
+
+
+
+pub mod gl {
+    #![allow(clippy::all)]
+    include!(concat!(env!("OUT_DIR"), "/gl_bindings.rs"));
+    pub use Gles2 as Gl;
+}
+
+
+
+pub trait AppData{
+    fn new() -> Rc<Self>;
+    fn Draw(&self);
+    fn Init(&self);
+}
+
+pub struct AppInstance<T>{
+    app_data : Rc<T>,
+    event_loop : std::cell::UnsafeCell<winit::event_loop::EventLoop<()>>,
+    gl_context : gl::Gl,
+    gl_config : glutin::config::Config,
+    gl_surface : glutin::surface::Surface<glutin::surface::WindowSurface>,
+    window_context : PossiblyCurrentContext,
+    window : winit::window::Window,
+}
+
+impl<T : AppData + 'static> AppInstance<T>{
+    pub fn new() -> Self{
+        unsafe{
+            let app_data = T::new();
+            let event_loop = EventLoopBuilder::new().build();
+            let (gl_context,gl_config,gl_surface,window_context,window) = Self::CreateGlContext(&event_loop);
+            return Self{
+                app_data : app_data,
+                event_loop : std::cell::UnsafeCell::new(event_loop),
+                gl_context : gl_context,
+                gl_config : gl_config,
+                gl_surface : gl_surface,
+                window_context : window_context,
+                window : window,
+            }
+        }
+    }
+
+    pub fn Run(self : Rc<Self>){
+        Self::PrintGlInfo(&self.gl_context);
+        self.app_data.Init();
+        
+        self.EventLoop().run(move |event, window_target, control_flow| {
+            control_flow.set_wait();
+            match event {
+                Event::Resumed => {
+                    println!("Resumed");
+                },
+                Event::RedrawEventsCleared => {
+                    unsafe{
+                        self.gl_context.ClearColor(0.1, 0.1, 0.1, 0.9);
+                        self.gl_context.Clear(gl::COLOR_BUFFER_BIT);
+                    }
+                    self.app_data.Draw();    
+                },
+                Event::WindowEvent{event,..} =>{
+                    match event{
+                        WindowEvent::Resized(size) => {
+                            println!("Window has been resized");
+                            self.gl_surface.resize(
+                                &self.window_context,
+                                NonZeroU32::new(size.width).unwrap(),
+                                NonZeroU32::new(size.height).unwrap(),
+                            );
+                        },
+                        WindowEvent::CloseRequested=>{
+                            control_flow.set_exit();
+                        },
+                        ref default =>{
+                            println!("Unknown Event {:?}",default);
+                        }
+                    }
+                },
+                ref default =>{
+                    println!("Unknown Event {:?}",default);
+                }
+            }
+        });
+    }
+
+    fn EventLoop(&self) -> winit::event_loop::EventLoop<()> {
+        unsafe{
+            return std::ptr::read(std::cell::UnsafeCell::<winit::event_loop::EventLoop<()>>::raw_get(&self.event_loop));
+        }
+    }
+    
+    fn PrintGlInfo(gl : &gl::Gl){
+        unsafe{
+            if let Some(renderer) = Self::GetGlString(&gl, gl::RENDERER) {
+                println!("Running on {}", renderer.to_string_lossy());
+            }
+            if let Some(version) = Self::GetGlString(&gl, gl::VERSION) {
+                println!("OpenGL Version {}", version.to_string_lossy());
+            }
+            if let Some(shaders_version) = Self::GetGlString(&gl, gl::SHADING_LANGUAGE_VERSION) {
+                println!("Shaders version on {}", shaders_version.to_string_lossy());
+            }
+        }
+    }
+
+
+    unsafe fn CreateGlContext(event_loop : &winit::event_loop::EventLoop<()>) -> 
+            (gl::Gl, 
+             glutin::config::Config,
+             glutin::surface::Surface<glutin::surface::WindowSurface>, 
+             PossiblyCurrentContext,
+             winit::window::Window,
+             ){
+        let window_builder = Some(WindowBuilder::new().with_transparent(true));
+        let template =  ConfigTemplateBuilder::new().with_alpha_size(8).with_transparency(cfg!(cgl_backend));
+        let display_builder = DisplayBuilder::new().with_window_builder(window_builder);
+        let (mut window_option, gl_config) = display_builder
+        .build(&event_loop, template, |configs| {
+            // Find the config with the maximum number of samples, so our triangle will
+            // be smooth.
+            configs
+                .reduce(|accum, config| {
+                    let transparency_check = config.supports_transparency().unwrap_or(false)
+                        & !accum.supports_transparency().unwrap_or(false);
+
+                 if transparency_check || config.num_samples() > accum.num_samples() {
+                        config
+                    } else {
+                        accum
+                    }
+                })
+                .unwrap()
+        })
+        .unwrap();
+
+        let window = window_option.take().expect("");
+
+        let raw_window_handle = Some(window.raw_window_handle());
+        let context_attributes = ContextAttributesBuilder::new().build(raw_window_handle);
+        let gl_display = gl_config.display();
+        let mut not_current_gl_context = gl_display.create_context(&gl_config, &context_attributes).unwrap();
+        let attrs = window.build_surface_attributes(<_>::default());
+        let gl_surface = gl_config.display().create_window_surface(&gl_config, &attrs).unwrap();
+        let gl_context =  not_current_gl_context.make_current(&gl_surface).unwrap();
+        
+        let gl = gl::Gl::load_with(|symbol| {
+            let symbol = CString::new(symbol).unwrap();
+            gl_display.get_proc_address(symbol.as_c_str()).cast()
+        });
+        return (gl,gl_config,gl_surface,gl_context,window);
+    }
+
+
+
+    unsafe fn GetGlString(gl: &gl::Gl, variant: gl::types::GLenum) -> Option<&'static CStr> {
+        let s = gl.GetString(variant);
+        (!s.is_null()).then(|| CStr::from_ptr(s.cast()))
+    }
+}
+
+
+
