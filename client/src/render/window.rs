@@ -16,21 +16,13 @@ use glutin::surface::SwapInterval;
 
 use winit::event_loop::EventLoopBuilder;
 use glutin_winit::{self, DisplayBuilder, GlWindow};
-
-
-
-pub mod gl {
-    #![allow(clippy::all)]
-    include!(concat!(env!("OUT_DIR"), "/gl_bindings.rs"));
-    pub use Gles2 as Gl;
-}
-
-
+extern crate gl_context;
+use gl_context::gl;
 
 pub trait AppData{
     fn new() -> Rc<Self>;
     fn Draw(&self);
-    fn Init(&self);
+    fn Init(&self,gl : &gl::Gl);
 }
 
 pub struct AppInstance<T>{
@@ -63,7 +55,7 @@ impl<T : AppData + 'static> AppInstance<T>{
 
     pub fn Run(self : Rc<Self>){
         Self::PrintGlInfo(&self.gl_context);
-        self.app_data.Init();
+        self.app_data.Init(&self.gl_context);
         
         self.EventLoop().run(move |event, window_target, control_flow| {
             control_flow.set_wait();
@@ -77,6 +69,7 @@ impl<T : AppData + 'static> AppInstance<T>{
                         self.gl_context.Clear(gl::COLOR_BUFFER_BIT);
                     }
                     self.app_data.Draw();    
+                    self.gl_surface.swap_buffers(&self.window_context).unwrap();
                 },
                 Event::WindowEvent{event,..} =>{
                     match event{

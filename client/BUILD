@@ -34,6 +34,8 @@ rust_binary(
     name = "main_2",
     srcs = ["src/other_main.rs"],
     deps = [
-      "//client/src/render:window"
+      "//client/src/render:window",
+      "//client/src/render:shader",
+      "//client/src/render:gl_context",
     ]
 )

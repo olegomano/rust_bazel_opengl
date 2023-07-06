@@ -1,10 +1,6 @@
 use std::ffi::{CStr, CString};
-
-pub mod gl {
-    #![allow(clippy::all)]
-    include!(concat!(env!("OUT_DIR"), "/gl_bindings.rs"));
-    pub use Gles2 as Gl;
-}
+extern crate gl_context;
+use gl_context::gl;
 
 
 unsafe fn CreateProgram(gl_context : &gl::Gl, vertex_shader: &str, fragment_shader: &str) -> gl::types::GLuint{
@@ -17,7 +13,6 @@ unsafe fn CreateProgram(gl_context : &gl::Gl, vertex_shader: &str, fragment_shad
    return program;
 }
 
-// let vertex_shader = create_shader(&gl, gl::VERTEX_SHADER, VERTEX_SHADER_SOURCE);
 unsafe fn CompileFragmentShader(gl_context : &gl::Gl, source: &str) -> gl::types::GLuint{
     let handle = gl_context.CreateShader(gl::FRAGMENT_SHADER);
     gl_context.ShaderSource(handle,1,std::ptr::null(),std::ptr::null());
@@ -54,7 +49,9 @@ impl Shader{
     pub fn new(gl_context : &gl::Gl,frag : &str,vert : &str) -> Result<Shader,&'static str>{
         unsafe{
             let handle = CreateProgram(gl_context,frag,vert);
-            return Err("Failed");
+            return Ok(Shader{
+                handle : handle
+            });
         }
     }
 } 
