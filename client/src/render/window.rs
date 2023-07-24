@@ -17,11 +17,12 @@ use glutin::surface::SwapInterval;
 use winit::event_loop::EventLoopBuilder;
 use glutin_winit::{self, DisplayBuilder, GlWindow};
 extern crate gl_context;
+extern crate gl_utils;
 use gl_context::gl;
 
 pub trait AppData{
     fn new() -> Rc<Self>;
-    fn Draw(&self);
+    fn Draw(&self,gl : &gl::Gl);
     fn Init(&self,gl : &gl::Gl);
 }
 
@@ -33,9 +34,13 @@ pub struct AppInstance<T>{
     gl_surface : glutin::surface::Surface<glutin::surface::WindowSurface>,
     window_context : PossiblyCurrentContext,
     window : winit::window::Window,
+    vao: gl::types::GLuint,
 }
 
 impl<T : AppData + 'static> AppInstance<T>{
+
+
+    #[gl_utils::timed]
     pub fn new() -> Self{
         unsafe{
             let app_data = T::new();
@@ -49,10 +54,11 @@ impl<T : AppData + 'static> AppInstance<T>{
                 gl_surface : gl_surface,
                 window_context : window_context,
                 window : window,
+                vao : 0,
             }
         }
     }
-
+    
     pub fn Run(self : Rc<Self>){
         Self::PrintGlInfo(&self.gl_context);
         self.app_data.Init(&self.gl_context);
@@ -68,7 +74,7 @@ impl<T : AppData + 'static> AppInstance<T>{
                         self.gl_context.ClearColor(0.1, 0.1, 0.1, 0.9);
                         self.gl_context.Clear(gl::COLOR_BUFFER_BIT);
                     }
-                    self.app_data.Draw();    
+                    self.app_data.Draw(&self.gl_context);    
                     self.gl_surface.swap_buffers(&self.window_context).unwrap();
                 },
                 Event::WindowEvent{event,..} =>{
@@ -85,23 +91,25 @@ impl<T : AppData + 'static> AppInstance<T>{
                             control_flow.set_exit();
                         },
                         ref default =>{
-                            println!("Unknown Event {:?}",default);
+                            //println!("Unknown Event {:?}",default);
                         }
                     }
                 },
                 ref default =>{
-                    println!("Unknown Event {:?}",default);
+                    //println!("Unknown Event {:?}",default);
                 }
             }
         });
     }
 
+    #[gl_utils::timed]
     fn EventLoop(&self) -> winit::event_loop::EventLoop<()> {
         unsafe{
             return std::ptr::read(std::cell::UnsafeCell::<winit::event_loop::EventLoop<()>>::raw_get(&self.event_loop));
         }
     }
     
+    #[gl_utils::timed]
     fn PrintGlInfo(gl : &gl::Gl){
         unsafe{
             if let Some(renderer) = Self::GetGlString(&gl, gl::RENDERER) {
@@ -116,7 +124,7 @@ impl<T : AppData + 'static> AppInstance<T>{
         }
     }
 
-
+    #[gl_utils::timed]
     unsafe fn CreateGlContext(event_loop : &winit::event_loop::EventLoop<()>) -> 
             (gl::Gl, 
              glutin::config::Config,

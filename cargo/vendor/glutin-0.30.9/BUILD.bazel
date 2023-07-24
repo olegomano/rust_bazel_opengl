@@ -1,0 +1,132 @@
+"""
+@generated
+cargo-raze crate build file.
+
+DO NOT EDIT! Replaced on runs of cargo-raze
+"""
+
+# buildifier: disable=load
+load("@bazel_skylib//lib:selects.bzl", "selects")
+
+# buildifier: disable=load
+load(
+    "@rules_rust//rust:defs.bzl",
+    "rust_binary",
+    "rust_library",
+    "rust_proc_macro",
+    "rust_test",
+)
+
+package(default_visibility = [
+    # Public for visibility by "@raze__crate__version//" targets.
+    #
+    # Prefer access through "//cargo", which limits external
+    # visibility to explicit Cargo.toml dependencies.
+    "//visibility:public",
+])
+
+licenses([
+    "notice",  # Apache-2.0 from expression "Apache-2.0"
+])
+
+# Generated Targets
+# buildifier: disable=out-of-order-load
+# buildifier: disable=load-on-top
+load(
+    "@rules_rust//cargo:cargo_build_script.bzl",
+    "cargo_build_script",
+)
+
+cargo_build_script(
+    name = "glutin_build_script",
+    srcs = glob(["**/*.rs"]),
+    build_script_env = {
+    },
+    crate_features = [
+        "egl",
+        "glutin_egl_sys",
+        "glutin_glx_sys",
+        "glutin_wgl_sys",
+        "glx",
+        "libloading",
+        "wayland",
+        "wayland-sys",
+        "wgl",
+        "windows-sys",
+        "x11",
+        "x11-dl",
+    ],
+    crate_root = "build.rs",
+    data = glob(["**"]),
+    edition = "2021",
+    rustc_flags = [
+        "--cap-lints=allow",
+    ],
+    tags = [
+        "cargo-raze",
+        "manual",
+    ],
+    version = "0.30.9",
+    visibility = ["//visibility:private"],
+    deps = [
+        "//cargo/vendor/cfg_aliases-0.1.1:cfg_aliases",
+    ] + selects.with_or({
+        (
+            "@rules_rust//rust/platform:x86_64-unknown-linux-gnu",
+        ): [
+            "//cargo/vendor/wayland-sys-0.30.1:wayland_sys",
+        ],
+        "//conditions:default": [],
+    }),
+)
+
+rust_library(
+    name = "glutin",
+    srcs = glob(["**/*.rs"]),
+    aliases = {
+    },
+    crate_features = [
+        "egl",
+        "glutin_egl_sys",
+        "glutin_glx_sys",
+        "glutin_wgl_sys",
+        "glx",
+        "libloading",
+        "wayland",
+        "wayland-sys",
+        "wgl",
+        "windows-sys",
+        "x11",
+        "x11-dl",
+    ],
+    crate_root = "src/lib.rs",
+    data = [],
+    edition = "2021",
+    rustc_flags = [
+        "--cap-lints=allow",
+    ],
+    tags = [
+        "cargo-raze",
+        "crate-name=glutin",
+        "manual",
+    ],
+    version = "0.30.9",
+    # buildifier: leave-alone
+    deps = [
+        "//cargo/vendor/bitflags-1.3.2:bitflags",
+        "//cargo/vendor/libloading-0.7.4:libloading",
+        "//cargo/vendor/once_cell-1.18.0:once_cell",
+        "//cargo/vendor/raw-window-handle-0.5.2:raw_window_handle",
+        ":glutin_build_script",
+    ] + selects.with_or({
+        (
+            "@rules_rust//rust/platform:x86_64-unknown-linux-gnu",
+        ): [
+            "//cargo/vendor/glutin_egl_sys-0.5.0:glutin_egl_sys",
+            "//cargo/vendor/glutin_glx_sys-0.4.0:glutin_glx_sys",
+            "//cargo/vendor/wayland-sys-0.30.1:wayland_sys",
+            "//cargo/vendor/x11-dl-2.21.0:x11_dl",
+        ],
+        "//conditions:default": [],
+    }),
+)

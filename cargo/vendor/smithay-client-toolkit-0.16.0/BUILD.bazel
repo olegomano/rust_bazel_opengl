@@ -1,0 +1,113 @@
+"""
+@generated
+cargo-raze crate build file.
+
+DO NOT EDIT! Replaced on runs of cargo-raze
+"""
+
+# buildifier: disable=load
+load("@bazel_skylib//lib:selects.bzl", "selects")
+
+# buildifier: disable=load
+load(
+    "@rules_rust//rust:defs.bzl",
+    "rust_binary",
+    "rust_library",
+    "rust_proc_macro",
+    "rust_test",
+)
+
+package(default_visibility = [
+    # Public for visibility by "@raze__crate__version//" targets.
+    #
+    # Prefer access through "//cargo", which limits external
+    # visibility to explicit Cargo.toml dependencies.
+    "//visibility:public",
+])
+
+licenses([
+    "notice",  # MIT from expression "MIT"
+])
+
+# Generated Targets
+# buildifier: disable=out-of-order-load
+# buildifier: disable=load-on-top
+load(
+    "@rules_rust//cargo:cargo_build_script.bzl",
+    "cargo_build_script",
+)
+
+cargo_build_script(
+    name = "smithay_client_toolkit_build_script",
+    srcs = glob(["**/*.rs"]),
+    build_script_env = {
+    },
+    crate_features = [
+        "calloop",
+        "default",
+        "dlopen",
+    ],
+    crate_root = "build.rs",
+    data = glob(["**"]),
+    edition = "2018",
+    rustc_flags = [
+        "--cap-lints=allow",
+    ],
+    tags = [
+        "cargo-raze",
+        "manual",
+    ],
+    version = "0.16.0",
+    visibility = ["//visibility:private"],
+    deps = [
+        "//cargo/vendor/pkg-config-0.3.27:pkg_config",
+    ],
+)
+
+# Unsupported target "compositor_info" with type "example" omitted
+
+# Unsupported target "image_viewer" with type "example" omitted
+
+# Unsupported target "kbd_input" with type "example" omitted
+
+# Unsupported target "layer_shell" with type "example" omitted
+
+# Unsupported target "pointer_input" with type "example" omitted
+
+# Unsupported target "selection" with type "example" omitted
+
+rust_library(
+    name = "smithay_client_toolkit",
+    srcs = glob(["**/*.rs"]),
+    crate_features = [
+        "calloop",
+        "default",
+        "dlopen",
+    ],
+    crate_root = "src/lib.rs",
+    data = [],
+    edition = "2018",
+    rustc_flags = [
+        "--cap-lints=allow",
+    ],
+    tags = [
+        "cargo-raze",
+        "crate-name=smithay-client-toolkit",
+        "manual",
+    ],
+    version = "0.16.0",
+    # buildifier: leave-alone
+    deps = [
+        "//cargo/vendor/bitflags-1.3.2:bitflags",
+        "//cargo/vendor/calloop-0.10.6:calloop",
+        "//cargo/vendor/dlib-0.5.2:dlib",
+        "//cargo/vendor/lazy_static-1.4.0:lazy_static",
+        "//cargo/vendor/log-0.4.19:log",
+        "//cargo/vendor/memmap2-0.5.10:memmap2",
+        "//cargo/vendor/nix-0.24.3:nix",
+        "//cargo/vendor/wayland-client-0.29.5:wayland_client",
+        "//cargo/vendor/wayland-cursor-0.29.5:wayland_cursor",
+        "//cargo/vendor/wayland-protocols-0.29.5:wayland_protocols",
+        ":smithay_client_toolkit_build_script",
+    ],
+)

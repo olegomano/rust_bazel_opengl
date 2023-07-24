@@ -1,5 +1,6 @@
 extern crate window; 
-extern crate shader; 
+extern crate default_shader; 
+extern crate vbo; 
 extern crate gl_context;
 use gl_context::gl;
 
@@ -31,23 +32,28 @@ void main() {
 
 
 struct Data{
-    counter : i32
+    counter : i32,
+    tris : vbo::Vbo,
+    shader : std::cell::Cell<default_shader::DefaultShader>,
 }
 
 impl window::AppData for Data{
     fn new() -> Rc<Self>{
         return Rc::new(Data{
-            counter : 0
+            counter : 0,
+            tris : vbo::Vbo::new(),
+            shader : std::cell::Cell::new(  default_shader::DefaultShader::default() ), 
         });
     }
     
-    fn Draw(&self){
-     
+    fn Draw(&self,gl : &gl::Gl){
+        self.shader.get().Render(&self.tris,gl);                
     }
 
     fn Init(&self,gl : &gl::Gl){
         println!("Init");
-        let shader = shader::Shader::new(gl,VERTEX_SHADER_SOURCE,FRAGMENT_SHADER_SOURCE);
+        self.tris.InitTriangle(gl);
+        self.shader.replace( default_shader::DefaultShader::new(gl).unwrap() );
     }
 }
 
@@ -55,6 +61,6 @@ impl window::AppData for Data{
 
 
 fn main(){
-    let app = Rc::new(window::AppInstance::<Data>::new());
+    let mut app = Rc::new(window::AppInstance::<Data>::new());
     app.Run();
 }

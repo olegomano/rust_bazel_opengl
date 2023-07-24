@@ -35,7 +35,8 @@ rust_binary(
     srcs = ["src/other_main.rs"],
     deps = [
       "//client/src/render:window",
-      "//client/src/render:shader",
+      "//client/src/render:default_shader",
+      "//client/src/render:vbo",
       "//client/src/render:gl_context",
     ]
 )

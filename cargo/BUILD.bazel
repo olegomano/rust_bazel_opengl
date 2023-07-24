@@ -14,7 +14,7 @@ licenses([
 # Aliased targets
 alias(
     name = "cfg_aliases",
-    actual = "@raze__cfg_aliases__0_1_1//:cfg_aliases",
+    actual = "//cargo/vendor/cfg_aliases-0.1.1:cfg_aliases",
     tags = [
         "cargo-raze",
         "manual",
@@ -23,7 +23,7 @@ alias(
 
 alias(
     name = "gl_generator",
-    actual = "@raze__gl_generator__0_14_0//:gl_generator",
+    actual = "//cargo/vendor/gl_generator-0.14.0:gl_generator",
     tags = [
         "cargo-raze",
         "manual",
@@ -32,7 +32,7 @@ alias(
 
 alias(
     name = "glutin",
-    actual = "@raze__glutin__0_30_9//:glutin",
+    actual = "//cargo/vendor/glutin-0.30.9:glutin",
     tags = [
         "cargo-raze",
         "manual",
@@ -41,7 +41,16 @@ alias(
 
 alias(
     name = "glutin_winit",
-    actual = "@raze__glutin_winit__0_3_0//:glutin_winit",
+    actual = "//cargo/vendor/glutin-winit-0.4.0-beta.0:glutin_winit",
+    tags = [
+        "cargo-raze",
+        "manual",
+    ],
+)
+
+alias(
+    name = "khronos_api",
+    actual = "//cargo/vendor/khronos_api-3.1.0:khronos_api",
     tags = [
         "cargo-raze",
         "manual",
@@ -50,7 +59,16 @@ alias(
 
 alias(
     name = "png",
-    actual = "@raze__png__0_17_9//:png",
+    actual = "//cargo/vendor/png-0.17.9:png",
+    tags = [
+        "cargo-raze",
+        "manual",
+    ],
+)
+
+alias(
+    name = "quote",
+    actual = "//cargo/vendor/quote-1.0.31:quote",
     tags = [
         "cargo-raze",
         "manual",
@@ -59,7 +77,16 @@ alias(
 
 alias(
     name = "raw_window_handle",
-    actual = "@raze__raw_window_handle__0_5_2//:raw_window_handle",
+    actual = "//cargo/vendor/raw-window-handle-0.5.2:raw_window_handle",
+    tags = [
+        "cargo-raze",
+        "manual",
+    ],
+)
+
+alias(
+    name = "syn",
+    actual = "//cargo/vendor/syn-1.0.109:syn",
     tags = [
         "cargo-raze",
         "manual",
@@ -68,27 +95,9 @@ alias(
 
 alias(
     name = "winit",
-    actual = "@raze__winit__0_28_6//:winit",
+    actual = "//cargo/vendor/winit-0.28.6:winit",
     tags = [
         "cargo-raze",
         "manual",
     ],
-)
-
-# Export file for Stardoc support
-exports_files(
-    glob([
-        "**/*.bazel",
-        "**/*.bzl",
-    ]),
-    visibility = ["//visibility:public"],
-)
-
-filegroup(
-    name = "srcs",
-    srcs = glob([
-        "**/*.bazel",
-        "**/*.bzl",
-    ]),
-    visibility = ["//visibility:public"],
 )

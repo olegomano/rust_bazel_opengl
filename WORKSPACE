@@ -16,9 +16,3 @@ http_archive(
     strip_prefix = "cargo-raze-0.11.0",
     url = "https://github.com/google/cargo-raze/archive/v0.11.0.tar.gz",
 )
-
-load("//cargo:crates.bzl", "raze_fetch_remote_crates")
-
-# Note that this method's name depends on your gen_workspace_prefix setting.
-# `raze` is the default prefix.
-raze_fetch_remote_crates()
