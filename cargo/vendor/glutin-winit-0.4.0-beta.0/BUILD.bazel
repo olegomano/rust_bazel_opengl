@@ -92,7 +92,7 @@ rust_library(
     deps = [
         "//cargo/vendor/glutin-0.30.9:glutin",
         "//cargo/vendor/raw-window-handle-0.5.2:raw_window_handle",
-        "//cargo/vendor/winit-0.29.0-beta.0:winit",
+        "//cargo/vendor/winit-0.28.6:winit",
         ":glutin_winit_build_script",
     ],
 )
