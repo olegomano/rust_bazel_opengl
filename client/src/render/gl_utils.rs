@@ -24,3 +24,33 @@ pub fn timed(_attr: TokenStream, item: TokenStream) -> TokenStream {
 
     TokenStream::from(expanded)
 }
+
+#[proc_macro_attribute]
+pub fn gl_error(_attr: TokenStream, item: TokenStream) -> TokenStream {
+    let ItemFn { attrs, vis, sig, block }
+        = parse_macro_input!(item as ItemFn);
+
+    let fn_name = sig.ident.to_string();
+
+    let expanded = quote! {
+        #[track_caller]
+        #(#attrs)*
+        #vis #sig {
+            unsafe{
+                let func = ||{#block};
+                let ret = func();
+
+                let error = CheckError(gl_context); 
+                match error{
+                    Some(e) =>{
+                        ::std::println!("[GL_ERROR] {}:{}   {}", ::core::panic::Location::caller() ,#fn_name,e);
+                    },
+                    None =>{}
+                }
+                ret
+            }
+        }
+    };
+
+    TokenStream::from(expanded)
+}

@@ -31,6 +31,15 @@ alias(
 )
 
 alias(
+    name = "glam",
+    actual = "//cargo/vendor/glam-0.24.1:glam",
+    tags = [
+        "cargo-raze",
+        "manual",
+    ],
+)
+
+alias(
     name = "glutin",
     actual = "//cargo/vendor/glutin-0.30.9:glutin",
     tags = [

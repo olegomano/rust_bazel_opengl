@@ -1,23 +1,27 @@
 use std::ffi::{CStr, CString};
+use std::ptr;
 extern crate gl_context;
 use gl_context::gl;
 extern crate gl_utils;
 
-#[gl_utils::timed]
+#[gl_utils::gl_error]
 unsafe fn CreateProgram(gl_context : &gl::Gl, vertex_shader: &str, fragment_shader: &str) -> gl::types::GLuint{
-   let program = gl_context.CreateProgram();
    let vert = CompileVertexShader(gl_context,vertex_shader);
-   PrintError(gl_context);
+   check_gl_compile_errors(gl_context,vert);
    let frag = CompileFragmentShader(gl_context,fragment_shader);
+   check_gl_compile_errors(gl_context,frag);
+   let program = gl_context.CreateProgram();
    PrintError(gl_context);
    gl_context.AttachShader(program,vert);
-   gl_context.AttachShader(program,frag);
-   gl_context.LinkProgram(program);
    PrintError(gl_context);
+   gl_context.AttachShader(program,frag);
+   PrintError(gl_context);
+   gl_context.LinkProgram(program);
+   check_gl_link_errors(gl_context,program);
    return program;
 }
 
-#[gl_utils::timed]
+#[gl_utils::gl_error]
 unsafe fn CompileFragmentShader(gl_context : &gl::Gl, source: &str) -> gl::types::GLuint{
     let handle = gl_context.CreateShader(gl::FRAGMENT_SHADER);
     gl_context.ShaderSource(handle,1,[source.as_ptr().cast()].as_ptr(),std::ptr::null());
@@ -25,12 +29,19 @@ unsafe fn CompileFragmentShader(gl_context : &gl::Gl, source: &str) -> gl::types
     return handle;
 }
 
+
+#[gl_utils::gl_error]
 unsafe fn CompileVertexShader(gl_context : &gl::Gl, source: &str) -> gl::types::GLuint{
     let handle = gl_context.CreateShader(gl::VERTEX_SHADER);
     gl_context.ShaderSource(handle,1,[source.as_ptr().cast()].as_ptr(),std::ptr::null());
     gl_context.CompileShader(handle);
     return handle;
 }
+
+unsafe fn CheckCompileError(gl_context : &gl::Gl) ->Option<String>{
+    return None;
+}
+
 
 unsafe fn CheckError(gl_context : &gl::Gl) -> Option<String>{
     let err =  gl_context.GetError();
@@ -46,6 +57,62 @@ unsafe fn CheckError(gl_context : &gl::Gl) -> Option<String>{
     }
 }
 
+
+fn check_gl_compile_errors(gl_context : &gl::Gl, shader: gl::types::GLuint) {
+    let mut success: gl::types::GLint = 0;
+    unsafe {
+        gl_context.GetShaderiv(shader, gl::COMPILE_STATUS, &mut success);
+        if success == gl::FALSE as gl::types::GLint {
+            let mut info_log_length: gl::types::GLint = 0;
+            gl_context.GetShaderiv(shader, gl::INFO_LOG_LENGTH, &mut info_log_length);
+            
+            let mut info_log: Vec<u8> = Vec::with_capacity(info_log_length as usize);
+            info_log.extend([b' '].iter().cycle().take(info_log_length as usize));
+            
+            gl_context.GetShaderInfoLog(
+                shader,
+                info_log_length,
+                ptr::null_mut(),
+                info_log.as_mut_ptr() as *mut gl::types::GLchar,
+            );
+            
+            let info_log_cstr = CString::from_vec_unchecked(info_log);
+            println!(
+                "Compilation error: {}",
+                info_log_cstr.to_string_lossy()
+            );
+        }
+    }
+}
+
+fn check_gl_link_errors(gl_context : &gl::Gl, shader: gl::types::GLuint) {
+    let mut success: gl::types::GLint = 0;
+    unsafe {
+        gl_context.GetProgramiv(shader, gl::LINK_STATUS, &mut success);
+        if success == gl::FALSE as gl::types::GLint {
+            let mut info_log_length: gl::types::GLint = 1024;
+            let mut info_log: Vec<u8> = Vec::with_capacity(info_log_length as usize);
+            info_log.extend([b' '].iter().cycle().take(info_log_length as usize));
+            
+            gl_context.GetProgramInfoLog(
+                shader,
+                info_log_length,
+                ptr::null_mut(),
+                info_log.as_mut_ptr() as *mut gl::types::GLchar,
+            );
+            
+            let info_log_cstr = CString::from_vec_unchecked(info_log);
+            println!(
+                "Link error: {}",
+                info_log_cstr.to_string_lossy()
+            );
+        }
+    }
+}
+
+
+
+
 fn PrintError(gl_context : &gl::Gl){
     unsafe{
         match CheckError(gl_context){
@@ -56,9 +123,16 @@ fn PrintError(gl_context : &gl::Gl){
 }
 
 pub trait Attribute{
-    fn Count() -> gl::types::GLuint;
-    fn Stride() -> gl::types::GLuint;
     fn Name() -> &'static str;
+}
+
+/*
+ * Count: The amount of elements in each attribtue ( 2,3,4 )
+ * Stride: 0 for tightly packed
+ */
+pub trait Layout{
+    fn Count() -> i32;
+    fn Stride() -> usize;
 }
 
 #[derive(Clone)]
@@ -68,9 +142,11 @@ pub struct Shader{
 }
 
 impl Shader{
+    #[gl_utils::gl_error]
     pub fn new(gl_context : &gl::Gl,frag : &str,vert : &str) -> Result<Shader,&'static str>{
         unsafe{
             let handle = CreateProgram(gl_context,frag,vert);
+            println!("Compiled Shader: {}",handle);
             return Ok(Shader{
                 handle : handle
             });
@@ -82,23 +158,34 @@ impl Shader{
             handle : 0
         }
     }
-
+    
+    #[gl_utils::gl_error]
+    pub fn Use(&self,gl_context : &gl::Gl) {
+        unsafe{
+            gl_context.UseProgram(self.handle);
+        }
+    }
+    
+    
+    #[gl_utils::gl_error]
     pub fn BindAttrib<T : Attribute>(&self, gl_context : &gl::Gl) -> gl::types::GLint {
         unsafe{
+            println!("GetAttribLocation {}",T::Name());
             return gl_context.GetAttribLocation(self.handle, T::Name().as_ptr() as *const _);
         }
     }
 
-    pub fn SetAttrib<T : Attribute>(&self, location : gl::types::GLint, gl_context : &gl::Gl) {
+    #[gl_utils::gl_error]
+    pub fn SetAttrib(&self, location : gl::types::GLint, layout : Layout. gl_context : &gl::Gl) {
         unsafe{
-        gl_context.VertexAttribPointer(
-            location as gl::types::GLuint,
-            T::Count() as i32,
-            gl::FLOAT,
-            0,
-            (T::Stride() as usize * std::mem::size_of::<f32>()) as gl::types::GLsizei,
-            std::ptr::null()
-        );
+            gl_context.VertexAttribPointer(
+                location as gl::types::GLuint,
+                layout.Count(),
+                gl::FLOAT,
+                0,
+                (layout.Stride() * std::mem::size_of::<f32>()) as gl::types::GLsizei,
+                std::ptr::null()
+            );
         }
     }
 }

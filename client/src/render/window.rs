@@ -63,7 +63,12 @@ impl<T : AppData + 'static> AppInstance<T>{
         Self::PrintGlInfo(&self.gl_context);
         self.app_data.Init(&self.gl_context);
         
-        self.EventLoop().run(move |event, window_target, control_flow| {
+        unsafe{
+            let mut vao = std::mem::zeroed();
+            self.gl_context.GenVertexArrays(1, &mut vao);
+            self.gl_context.BindVertexArray(vao);
+        }
+         self.EventLoop().run(move |event, window_target, control_flow| {
             control_flow.set_wait();
             match event {
                 Event::Resumed => {

@@ -43,8 +43,7 @@ cargo_build_script(
     build_script_env = {
     },
     crate_root = "build.rs",
-    data = [] + glob(["**"]),
-    compile_data = glob(["**"]),
+    data = glob(["**"]),
     edition = "2015",
     rustc_flags = [
         "--cap-lints=allow",
@@ -63,8 +62,8 @@ rust_library(
     name = "khronos_api",
     srcs = glob(["**/*.rs"]),
     crate_root = "src/lib.rs",
-    data = [] + glob(["**"]),
-    compile_data = glob(["**"]),
+    data = [] + glob(["**/*.xml"]),
+    compile_data = glob(["**/*.xml"]),
     edition = "2015",
     rustc_flags = [
         "--cap-lints=allow",

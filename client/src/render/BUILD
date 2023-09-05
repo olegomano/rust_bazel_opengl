@@ -39,8 +39,27 @@ rust_library(
   srcs = ["shaders/default_shader.rs"],
   deps = [
     "//client/src/render:gl_context",
+    "//cargo:glam",
     ":shader",
     ":vbo",
+  ],
+  proc_macro_deps = [
+    ":gl_utils"
+  ]
+)
+
+
+rust_library(
+  name = "drawable",
+  srcs = ["drawable/drawable.rs", "drawable/triangle_drawable.rs"],
+  deps = [
+    "//client/src/render:gl_context",
+    "//cargo:glam",
+    ":shader",
+    ":vbo",
+  ],
+  proc_macro_deps = [
+    ":gl_utils"
   ]
 )
 
@@ -61,6 +80,7 @@ rust_library(
       "//client/src/render:gl_context",
       "//cargo:winit",
       "//cargo:glutin",
+      "//cargo:glam",
       "//cargo:glutin_winit",
       "//cargo:raw_window_handle",
   ],
