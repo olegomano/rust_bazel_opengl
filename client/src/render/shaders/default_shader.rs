@@ -99,9 +99,9 @@ impl DefaultShader{
      * Draws the specified VBO with this shader
      * Assumes the VBO has a very specific layout
      */
-    pub fn Render(&self, drawable : &drawable::SpriteDrawable, gl : &gl::Gl){
+    pub fn Render(&self, drawable : &dyn drawable::SpriteDrawable, gl : &gl::Gl){
         self.Enable(gl);
-        drawable.Buffer().Bind();
+        drawable.Buffer().Bind(gl);
         self.shader.SetAttrib(self.pos_attr,drawable.PosAttribute(),gl); 
         self.shader.SetAttrib(self.uv_attr,drawable.UvAttribute(),gl);
         unsafe{

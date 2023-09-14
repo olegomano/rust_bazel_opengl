@@ -62,8 +62,8 @@ rust_library(
     name = "khronos_api",
     srcs = glob(["**/*.rs"]),
     crate_root = "src/lib.rs",
-    data = [] + glob(["**/*.xml"]),
-    compile_data = glob(["**/*.xml"]),
+    data = [] + glob(["**/*.xml","**/*.idl"]),
+    compile_data = glob(["**/*.xml","**/*.idl"]),
     edition = "2015",
     rustc_flags = [
         "--cap-lints=allow",

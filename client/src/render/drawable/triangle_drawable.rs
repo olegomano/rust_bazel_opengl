@@ -2,29 +2,6 @@ extern crate glam;
 extern crate shader; 
 extern crate vbo;
 
-
-struct PosLayout;
-pub impl shader::Layout for PosAttribute{
-    fn Count() -> i32 {
-        return 3;
-    }
-
-    fn Stride() -> usize {
-        return 5;
-    }
-}
-
-struct UvLayout;
-pub impl shader::Layout for UvAttribute{
-    fn Count() -> i32 {
-        return 2;
-    }
-
-    fn Stride() -> usize {
-        return 5;
-    }
-}
-
 #[rustfmt::skip]
 static VERTEX_DATA: [f32; 15] = [
     -0.5, -0.5,  1.0,  0.0,  0.0,
@@ -45,8 +22,14 @@ pub impl TriangleDrawable {
         vbo.Load(gl_context,VERTEX_DATA);
         return {
             vbo : vbo,
-            pos_layout : PosLayout,
-            uv_layout : UvLayout,
+            pos_layout : shader::Layout{
+                count : 3.
+                stride : 5,
+            },
+            uv_layout : shader::Layout{
+                count : 2,
+                stride : 5,
+            },
             transform : glam::Mat4::Ident(),
         }
     }

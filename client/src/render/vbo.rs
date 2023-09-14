@@ -27,7 +27,7 @@ impl Vbo{
                 gl::STATIC_DRAW,
             );
             self.handle.replace(vbo); 
-            self.elements.replace(buffer.len());
+            self.elements.replace(buffer.len() as i32);
         }
     }
     

@@ -75,7 +75,8 @@ rust_library(
         "wayland-client",
     ],
     crate_root = "src/lib.rs",
-    data = [],
+    data = [] + glob(["**"]),
+    compile_data = glob(["**"]),
     edition = "2018",
     rustc_flags = [
         "--cap-lints=allow",

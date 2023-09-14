@@ -28,10 +28,10 @@ directory = "vendor"
 compile_data_attr = "glob([\"**/*.ttf\"])"
 
 [package.metadata.raze.crates.khronos_api.'*']
-#data_attr = "glob([\"**/*.xml\",\"**/*.idl\"])"
-#compile_data_attr = "glob([\"**/*.xml\",\"**/*.idl\"])"
-data_attr = "glob([\"**/*.xml\"])"
-compile_data_attr = "glob([\"**/*.xml\"])"
+data_attr = "glob([\"**/*.xml\",\"**/*.idl\"])"
+compile_data_attr = "glob([\"**/*.xml\",\"**/*.idl\"])"
+#data_attr = "glob([\"**/*.xml\"])"
+#compile_data_attr = "glob([\"**/*.xml\"])"
 
 
 
@@ -39,8 +39,16 @@ compile_data_attr = "glob([\"**/*.xml\"])"
 data_attr = "glob([\"**\"])"
 compile_data_attr = "glob([\"**\"])"
 
+[package.metadata.raze.crates.wayland-protocols.'*']
+data_attr = "glob([\"**\"])"
+compile_data_attr = "glob([\"**\"])"
+
+[package.metadata.raze.crates.wayland-protocols-wlr.'*']
+data_attr = "glob([\"**\"])"
+compile_data_attr = "glob([\"**\"])"
+
 [dependencies]
-winit = "0.28.6"
+winit = {}
 glutin = {default-features=false}
 glutin-winit = {default-features=false}
 raw-window-handle = "0.5.0"

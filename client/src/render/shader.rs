@@ -130,9 +130,18 @@ pub trait Attribute{
  * Count: The amount of elements in each attribtue ( 2,3,4 )
  * Stride: 0 for tightly packed
  */
-pub trait Layout{
-    fn Count() -> i32;
-    fn Stride() -> usize;
+pub struct Layout{
+    count : i32,
+    stride : usize,
+}
+
+impl Layout{
+    pub fn Count(&self) -> i32 {
+        return self.count;
+    }
+    pub fn Stride(&self) -> usize{
+        return self.stride;
+    }
 }
 
 #[derive(Clone)]
@@ -176,7 +185,7 @@ impl Shader{
     }
 
     #[gl_utils::gl_error]
-    pub fn SetAttrib(&self, location : gl::types::GLint, layout : Layout. gl_context : &gl::Gl) {
+    pub fn SetAttrib(&self, location : gl::types::GLint, layout : &Layout, gl_context : &gl::Gl) {
         unsafe{
             gl_context.VertexAttribPointer(
                 location as gl::types::GLuint,

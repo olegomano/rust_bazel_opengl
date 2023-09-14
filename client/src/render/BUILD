@@ -42,6 +42,7 @@ rust_library(
     "//cargo:glam",
     ":shader",
     ":vbo",
+    ":drawable",
   ],
   proc_macro_deps = [
     ":gl_utils"
