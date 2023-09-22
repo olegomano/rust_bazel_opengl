@@ -38,6 +38,8 @@ rust_binary(
       "//client/src/render:default_shader",
       "//client/src/render:vbo",
       "//client/src/render:drawable",
+      "//client/src/render:triangle_drawable",
+      "//cargo:glam",
       "//client/src/render:gl_context",
     ]
 )

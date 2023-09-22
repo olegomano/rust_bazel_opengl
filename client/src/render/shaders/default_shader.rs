@@ -11,13 +11,15 @@ const VERTEX_SHADER_SOURCE: &str = "
     #version 300 es
     precision mediump float;
     
+    uniform mat4 transform;
+
     in vec2 position;
     in vec3 color;
 
     out vec3 v_color;
 
     void main() {
-        gl_Position = vec4(position, 0.0, 1.0);
+        gl_Position = transform * vec4(position, 0.0, 1.0);
         v_color = color;
     }
     \0";
@@ -65,10 +67,18 @@ impl shader::Attribute for ColorAttribute{
     }
 }
 
+struct TransformUniform{}
+impl shader::Attribute for TransformUniform{
+    fn Name() -> &'static str {
+        return "transform\0";
+    }
+}
+
 #[derive(Clone)]
 #[derive(Copy)]
 pub struct DefaultShader{
     shader : shader::Shader,
+    transform_uniform : gl::types::GLint,
     pos_attr : gl::types::GLint,
     uv_attr : gl::types::GLint,
 }
@@ -84,6 +94,7 @@ impl DefaultShader{
             shader : s,
             pos_attr : s.BindAttrib::<PosAttribute>(gl_context),
             uv_attr :  s.BindAttrib::<ColorAttribute>(gl_context),
+            transform_uniform : s.BindUniform::<TransformUniform>(gl_context),
         })
     }
     
@@ -92,6 +103,7 @@ impl DefaultShader{
             shader : shader::Shader::default(),
             pos_attr : 0,
             uv_attr : 0,
+            transform_uniform : 0,
         }
     }
 
@@ -102,6 +114,7 @@ impl DefaultShader{
     pub fn Render(&self, drawable : &dyn drawable::SpriteDrawable, gl : &gl::Gl){
         self.Enable(gl);
         drawable.Buffer().Bind(gl);
+        self.shader.SetUniformMat(self.transform_uniform,&drawable.Transform(),gl);
         self.shader.SetAttrib(self.pos_attr,drawable.PosAttribute(),gl); 
         self.shader.SetAttrib(self.uv_attr,drawable.UvAttribute(),gl);
         unsafe{

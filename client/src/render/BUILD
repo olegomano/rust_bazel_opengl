@@ -27,6 +27,7 @@ rust_library(
   name = "shader",
   srcs = ["shader.rs"],
   deps = [
+    "//cargo:glam",
     "//client/src/render:gl_context",
   ],
   proc_macro_deps = [
@@ -57,6 +58,21 @@ rust_library(
     "//client/src/render:gl_context",
     "//cargo:glam",
     ":shader",
+    ":vbo",
+  ],
+  proc_macro_deps = [
+    ":gl_utils"
+  ]
+)
+
+rust_library(
+  name = "triangle_drawable",
+  srcs = ["drawable/triangle_drawable.rs"],
+  deps = [
+    "//client/src/render:gl_context",
+    "//cargo:glam",
+    ":shader",
+    ":drawable",
     ":vbo",
   ],
   proc_macro_deps = [

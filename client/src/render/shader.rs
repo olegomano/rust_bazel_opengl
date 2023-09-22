@@ -1,6 +1,7 @@
 use std::ffi::{CStr, CString};
 use std::ptr;
 extern crate gl_context;
+extern crate glam;
 use gl_context::gl;
 extern crate gl_utils;
 
@@ -131,8 +132,8 @@ pub trait Attribute{
  * Stride: 0 for tightly packed
  */
 pub struct Layout{
-    count : i32,
-    stride : usize,
+    pub count : i32,
+    pub stride : usize,
 }
 
 impl Layout{
@@ -179,8 +180,22 @@ impl Shader{
     #[gl_utils::gl_error]
     pub fn BindAttrib<T : Attribute>(&self, gl_context : &gl::Gl) -> gl::types::GLint {
         unsafe{
-            println!("GetAttribLocation {}",T::Name());
             return gl_context.GetAttribLocation(self.handle, T::Name().as_ptr() as *const _);
+        }
+    }
+
+
+    #[gl_utils::gl_error]
+    pub fn BindUniform<T : Attribute>(&self, gl_context : &gl::Gl) -> gl::types::GLint {
+        unsafe{
+            return gl_context.GetUniformLocation(self.handle, T::Name().as_ptr() as *const _);
+        }
+    }
+
+    pub fn SetUniformMat(&self, location : gl::types::GLint, mat : &glam::Mat4, gl : &gl::Gl){
+        let matrix_data: [f32; 16] = mat.to_cols_array();
+        unsafe {
+            gl.UniformMatrix4fv(location, 1, gl::FALSE, matrix_data.as_ptr());
         }
     }
 
