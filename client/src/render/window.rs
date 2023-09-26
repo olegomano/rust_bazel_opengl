@@ -2,7 +2,7 @@ use std::ffi::{CStr, CString};
 use std::num::NonZeroU32;
 use std::ops::Deref;
 use std::rc::{Rc, Weak};
-use winit::event::{Event, WindowEvent};
+use winit::event::{Event, WindowEvent,ElementState};
 use winit::window::WindowBuilder;
 use glutin::context::PossiblyCurrentContext;
 
@@ -18,17 +18,20 @@ use winit::event_loop::EventLoopBuilder;
 use glutin_winit::{self, DisplayBuilder, GlWindow};
 extern crate gl_context;
 extern crate gl_utils;
+extern crate key_manager;
 use gl_context::gl;
 
 pub trait AppData{
     fn new() -> Rc<Self>;
     fn Draw(&self,gl : &gl::Gl);
     fn Init(&self,gl : &gl::Gl);
+    fn HandleKeyboard(&self, keys : &key_manager::KeyManager, gl : &gl::Gl);
 }
 
 pub struct AppInstance<T>{
     app_data : Rc<T>,
     event_loop : std::cell::UnsafeCell<winit::event_loop::EventLoop<()>>,
+    key_manager : key_manager::KeyManager,
     gl_context : gl::Gl,
     gl_config : glutin::config::Config,
     gl_surface : glutin::surface::Surface<glutin::surface::WindowSurface>,
@@ -49,6 +52,7 @@ impl<T : AppData + 'static> AppInstance<T>{
             return Self{
                 app_data : app_data,
                 event_loop : std::cell::UnsafeCell::new(event_loop),
+                key_manager : key_manager::KeyManager::new(),
                 gl_context : gl_context,
                 gl_config : gl_config,
                 gl_surface : gl_surface,
@@ -59,7 +63,7 @@ impl<T : AppData + 'static> AppInstance<T>{
         }
     }
     
-    pub fn Run(self : Rc<Self>){
+    pub fn Run(mut self : Box<Self>){
         Self::PrintGlInfo(&self.gl_context);
         self.app_data.Init(&self.gl_context);
         
@@ -68,7 +72,7 @@ impl<T : AppData + 'static> AppInstance<T>{
             self.gl_context.GenVertexArrays(1, &mut vao);
             self.gl_context.BindVertexArray(vao);
         }
-         self.EventLoop().run(move |event, window_target, control_flow| {
+        self.EventLoop().run(move |event, window_target, control_flow| {
             control_flow.set_wait();
             match event {
                 Event::Resumed => {
@@ -79,8 +83,13 @@ impl<T : AppData + 'static> AppInstance<T>{
                         self.gl_context.ClearColor(0.1, 0.1, 0.1, 0.9);
                         self.gl_context.Clear(gl::COLOR_BUFFER_BIT);
                     }
+                    self.app_data.HandleKeyboard(&mut self.key_manager,&self.gl_context);
                     self.app_data.Draw(&self.gl_context);    
                     self.gl_surface.swap_buffers(&self.window_context).unwrap();
+                },
+                Event::WindowEvent { event: WindowEvent::KeyboardInput { input, .. }, ..} => {
+                    // Handle keyboard input events
+                    self.key_manager.HandleInput(input);
                 },
                 Event::WindowEvent{event,..} =>{
                     match event{

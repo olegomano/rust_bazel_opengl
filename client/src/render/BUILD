@@ -80,6 +80,24 @@ rust_library(
   ]
 )
 
+rust_library(
+  name = "key_manager",
+  srcs = ["key_manager.rs"],
+  deps = [
+    "//cargo:winit",
+    "//cargo:glutin",
+    "//cargo:glutin_winit",
+  ]
+)
+
+rust_library(
+  name = "texture",
+  srcs = ["texture.rs"],
+  deps = [
+    "//client/src/render:gl_context",
+    "//cargo:image",
+  ]
+)
 
 rust_library(
   name = "vbo",
@@ -100,6 +118,7 @@ rust_library(
       "//cargo:glam",
       "//cargo:glutin_winit",
       "//cargo:raw_window_handle",
+      ":key_manager",
   ],
   proc_macro_deps = [
     ":gl_utils"

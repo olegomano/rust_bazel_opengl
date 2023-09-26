@@ -1,0 +1,93 @@
+"""
+@generated
+cargo-raze crate build file.
+
+DO NOT EDIT! Replaced on runs of cargo-raze
+"""
+
+# buildifier: disable=load
+load("@bazel_skylib//lib:selects.bzl", "selects")
+
+# buildifier: disable=load
+load(
+    "@rules_rust//rust:defs.bzl",
+    "rust_binary",
+    "rust_library",
+    "rust_proc_macro",
+    "rust_test",
+)
+
+package(default_visibility = [
+    # Public for visibility by "@raze__crate__version//" targets.
+    #
+    # Prefer access through "//cargo", which limits external
+    # visibility to explicit Cargo.toml dependencies.
+    "//visibility:public",
+])
+
+licenses([
+    "notice",  # MIT from expression "MIT"
+])
+
+# Generated Targets
+
+# Unsupported target "copy_from" with type "bench" omitted
+
+# Unsupported target "decode" with type "bench" omitted
+
+# Unsupported target "encode" with type "bench" omitted
+
+rust_library(
+    name = "image",
+    srcs = glob(["**/*.rs"]),
+    aliases = {
+        "//cargo/vendor/jpeg-decoder-0.3.0:jpeg_decoder": "jpeg",
+    },
+    crate_features = [
+        "bmp",
+        "dds",
+        "default",
+        "dxt",
+        "exr",
+        "farbfeld",
+        "gif",
+        "hdr",
+        "ico",
+        "jpeg",
+        "jpeg_rayon",
+        "openexr",
+        "png",
+        "pnm",
+        "qoi",
+        "tga",
+        "tiff",
+        "webp",
+    ],
+    crate_root = "src/lib.rs",
+    data = [] + glob(["**"]),
+    compile_data = glob(["**"]),
+    edition = "2018",
+    rustc_flags = [
+        "--cap-lints=allow",
+    ],
+    tags = [
+        "cargo-raze",
+        "crate-name=image",
+        "manual",
+    ],
+    version = "0.24.7",
+    # buildifier: leave-alone
+    deps = [
+        "//cargo/vendor/bytemuck-1.13.1:bytemuck",
+        "//cargo/vendor/byteorder-1.4.3:byteorder",
+        "//cargo/vendor/color_quant-1.1.0:color_quant",
+        "//cargo/vendor/exr-1.71.0:exr",
+        "//cargo/vendor/gif-0.12.0:gif",
+        "//cargo/vendor/jpeg-decoder-0.3.0:jpeg_decoder",
+        "//cargo/vendor/num-rational-0.4.1:num_rational",
+        "//cargo/vendor/num-traits-0.2.16:num_traits",
+        "//cargo/vendor/png-0.17.9:png",
+        "//cargo/vendor/qoi-0.4.1:qoi",
+        "//cargo/vendor/tiff-0.9.0:tiff",
+    ],
+)

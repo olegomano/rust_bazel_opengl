@@ -47,6 +47,14 @@ compile_data_attr = "glob([\"**\"])"
 data_attr = "glob([\"**\"])"
 compile_data_attr = "glob([\"**\"])"
 
+[package.metadata.raze.crates.gif.'*']
+data_attr = "glob([\"**\"])"
+compile_data_attr = "glob([\"**\"])"
+
+[package.metadata.raze.crates.image.'*']
+data_attr = "glob([\"**\"])"
+compile_data_attr = "glob([\"**\"])"
+
 [dependencies]
 winit = {}
 glutin = {default-features=false}
@@ -56,6 +64,7 @@ png = { version = "0.17.6", optional = true }
 quote = {}
 syn = { version = "1.0.86", features = ["full"] }
 glam = "0.24.1"
+image = {}
 
 [build-dependencies]
 gl_generator = {}

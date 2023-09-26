@@ -34,11 +34,15 @@ rust_binary(
     name = "main_2",
     srcs = ["src/other_main.rs"],
     deps = [
+      "//cargo:winit",
+      "//cargo:glutin",
+      "//cargo:glutin_winit",
       "//client/src/render:window",
       "//client/src/render:default_shader",
       "//client/src/render:vbo",
       "//client/src/render:drawable",
       "//client/src/render:triangle_drawable",
+      "//client/src/render:key_manager",
       "//cargo:glam",
       "//client/src/render:gl_context",
     ]
