@@ -44,6 +44,7 @@ rust_library(
     ":shader",
     ":vbo",
     ":drawable",
+    ":texture",
   ],
   proc_macro_deps = [
     ":gl_utils"
@@ -59,6 +60,7 @@ rust_library(
     "//cargo:glam",
     ":shader",
     ":vbo",
+    ":texture",
   ],
   proc_macro_deps = [
     ":gl_utils"
@@ -74,6 +76,7 @@ rust_library(
     ":shader",
     ":drawable",
     ":vbo",
+    ":texture",
   ],
   proc_macro_deps = [
     ":gl_utils"

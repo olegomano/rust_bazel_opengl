@@ -1,0 +1,10 @@
+py_binary(
+    name = "gen_assets",
+    srcs = ["gen_assets.py","rust_generator.py"],
+    data = glob([
+      "image/**"
+    ]),
+    env = {
+        "FILE_PATH": "$(rootpath :gen_assets.py)",
+    },
+)

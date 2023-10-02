@@ -4,6 +4,7 @@ use gl_context::gl;
 use gl_context::gl::types::GLuint;
 use image::io::Reader as ImageReader;
 
+#[derive(Clone)]
 pub struct Texture{
     handle : std::cell::Cell<gl::types::GLuint>,
 }

@@ -43,6 +43,7 @@ rust_binary(
       "//client/src/render:drawable",
       "//client/src/render:triangle_drawable",
       "//client/src/render:key_manager",
+      "//client/src/render:texture",
       "//cargo:glam",
       "//client/src/render:gl_context",
     ]
