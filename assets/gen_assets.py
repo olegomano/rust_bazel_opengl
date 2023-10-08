@@ -1,5 +1,6 @@
 import sys
 import os
+import img_loader
 from typing import List
 from dataclasses import dataclass
 IMAGE_ASSET = "image"
@@ -19,6 +20,7 @@ class Generator:
 @dataclass
 class Context:
     working_dir : str
+    output_dir : str
     asset_info : object
     generators : object
 
@@ -26,10 +28,19 @@ class Context:
 class AssetGenerator():
     def __init__(self,context):
         print(context.working_dir)
+        self._asset_id = 0
+        #map of asset_id -> path 
+        self._asset_id_lut = {}
+        self._asset_path_lut = {}
         self._context = context
         self._gen_lut = self._generators_for_asset_type(context)
         for _,asset_class in self._context.asset_info.items():
             self._handle_asset_class(asset_class)
+        
+        asset_index_py = self._gen_asset_index_python()
+        asset_index_rs = self._gen_asset_index_rust()
+        self._save_file("index/asset_index.py",asset_index_py)
+        self._save_file("index/asset_index.rs",asset_index_rs)
 
     #generates all the asset files
     def run(self):
@@ -55,14 +66,46 @@ class AssetGenerator():
         generators = self._gen_lut[asset_class.name]
         
         for file in files:
+            self._register_asset(file,asset_class)
             for ext in asset_class.ext:
                 if ext in file:
                     for gen in generators:
                         gen.gen(file)
     
+    #register the asset 
+    #this will generate an asset_id for the global LUT
+    def _register_asset(self,asset_path,asset_class):
+        asset_name = asset_path[len(self._context.working_dir):]
+        self._asset_id = self._asset_id + 1
+        self._asset_id_lut[self._asset_id] = asset_name
+        self._asset_path_lut[asset_name] = self._asset_id
+    
+    #create the python version of the asset index
+    def _gen_asset_index_python(self):
+        result = "ASSET_INDEX = {\n "
+        for id,path in self._asset_id_lut.items():
+            result = result + "\"{}\" :{},\n".format(path,id)
+        result = result + "}"
+        return result
+    
+    #generate the asset index for rust 
+    def _gen_asset_index_rust(self):
+        result = "const ASSET_INDEX: [(&str,i32);{}]= [\n".format(len(self._asset_id_lut))
+        for id,path in self._asset_id_lut.items():
+            result = result + "(\"{}\", {}),\n".format(path,id)
+        result = result + "];"
+        return result
+
     #generates a bazel file for the specified asset
     def _gen_bazel_file(self,asset):
         pass
+    
+    #saves a string to the following path relative to the bazel root
+    def _save_file(self,path,data):
+        path = os.path.join(self._context.output_dir,path)
+        print("writing " + path)
+        with open(path,"w") as file:
+            file.write(data)
 
     #generates a lut of asset_type to generator 
     #asset_tyoe -> [Generators]
@@ -81,7 +124,6 @@ class AssetGenerator():
 def rust_generator(asset):
     #gen rust file that includes the asset
     #gen bazel file that exposes generated rust file
-    print("Running rust generator")
     pass
 
 
@@ -92,6 +134,7 @@ if __name__ == "__main__":
     
     context = Context(
         working_dir = "/".join(sys.argv[0].split("/")[:-1]),
+        output_dir = "/home/oleg/Documents/Dev/Galaga/assets",
         asset_info = {
             IMAGE_ASSET : AssetClass(
                 name = IMAGE_ASSET,

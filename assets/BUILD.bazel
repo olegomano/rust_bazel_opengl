@@ -1,10 +1,46 @@
+load("@pip_deps//:requirements.bzl", "requirement")
+load("@rules_rust//rust:defs.bzl", "rust_binary")
+load("@rules_rust//rust:defs.bzl", "rust_binary", "rust_library", "rust_proc_macro")
+load("@rules_rust//cargo:defs.bzl", "cargo_build_script")
+
+ASSET_LIST = glob(["image/**",])
+filegroup(
+      name = "asset_files",
+      srcs = ASSET_LIST,
+      visibility = [ "//visibility:public" ],
+)
+
+filegroup(
+  name = "asset_index_py_files",
+  srcs = glob([
+    "index/*.py"
+  ]),
+  visibility = [ "//visibility:public" ],
+)
+
+filegroup(
+  name = "asset_index_rs_files",
+  srcs = glob([
+    "index/*.rs"
+  ]),
+  visibility = [ "//visibility:public" ],
+)
+
 py_binary(
     name = "gen_assets",
-    srcs = ["gen_assets.py","rust_generator.py"],
-    data = glob([
-      "image/**"
-    ]),
+    srcs = ["gen_assets.py","rust_generator.py","img_loader.py"],
+    data = [":asset_files"],
+    deps = [
+      requirement("pypng")
+    ],
     env = {
         "FILE_PATH": "$(rootpath :gen_assets.py)",
     },
 )
+
+
+rust_library(
+  name = "asset_index_rs",
+  srcs = [":asset_index_rs_files"],
+)
+
