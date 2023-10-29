@@ -16,7 +16,7 @@ pub struct TriangleDrawable {
     pos_layout : shader::Layout,
     uv_layout : shader::Layout,
     transform : std::cell::Cell<glam::Mat4>,
-    texture : std::cell::Cell<texture::Texture>,
+    texture : texture::Texture,
 }
 
 impl TriangleDrawable {
@@ -32,10 +32,10 @@ impl TriangleDrawable {
     }
     
     pub fn SetTexture(&self,texture : &texture::Texture) {
-        self.texture.set(*texture);
+        self.texture.Update(texture.Handle());
     }
 
-    fn UpdateTransform(&self,t : &glam::Mat4){
+    pub fn UpdateTransform(&self,t : &glam::Mat4){
         self.transform.set(*t);
     }
 
@@ -50,7 +50,7 @@ impl TriangleDrawable {
                 count : 2,
                 stride : 5,
             },
-            texture : std::cell::Cell::new(texture::Texture::default()),
+            texture : texture::Texture::default(),
             transform : std::cell::Cell::new(glam::Mat4::IDENTITY),
         }
     }
@@ -74,6 +74,6 @@ impl drawable::SpriteDrawable for TriangleDrawable{
     }
 
     fn Texture(&self) -> &texture::Texture{
-        return &self.texture.get();
+        return &self.texture;
     }
 }

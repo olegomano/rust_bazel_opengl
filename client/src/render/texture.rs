@@ -9,31 +9,25 @@ pub struct Texture{
     handle : std::cell::Cell<gl::types::GLuint>,
 }
 
-
-fn LoadFromPath(path : &str) -> (u32,u32,std::vec::Vec<u8>) {
-    let image = ImageReader::open(path)
-        .expect("Failed to open the image")
-        .decode()
-        .expect("Failed to decode the image");
-    return (image.width(),image.height(),image.to_rgba8().into_raw());
-}
-
 impl Texture{
-    pub fn new(path : &str, gl : &gl::Gl) -> Self{
-        let result = Texture::default();
-        result.Load(path,gl);
-        return result;
-    }
-
     pub fn default() -> Self{
         return Self{
             handle : std::cell::Cell::new(0),
         }
     }
+    
+    pub fn Handle(&self) -> gl::types::GLuint {
+        return self.handle.get();
+    }
 
-    pub fn Load(&self,path : &str, gl : &gl::Gl) {
+    pub fn Update(&self,handle : gl::types::GLuint) {
+        self.handle.replace(handle);
+    }
+
+    pub fn Load(&self,image_data : &[u8], gl : &gl::Gl) {
         let mut texture_id: GLuint = 0;
-        let (width,height,image_data) = LoadFromPath(path);
+        let width = 128;
+        let height = 128;
         unsafe{
              gl.GenTextures(1, &mut texture_id);
              gl.BindTexture(gl::TEXTURE_2D, texture_id);

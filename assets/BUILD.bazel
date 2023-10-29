@@ -26,6 +26,14 @@ filegroup(
   visibility = [ "//visibility:public" ],
 )
 
+filegroup(
+  name = "gen_asset_rs_files",
+  srcs = glob([
+    "gen/*.rs"
+  ]),
+  visibility = [ "//visibility:public" ],
+)
+
 py_binary(
     name = "gen_assets",
     srcs = ["gen_assets.py","rust_generator.py","img_loader.py"],
@@ -38,9 +46,21 @@ py_binary(
     },
 )
 
-
 rust_library(
-  name = "asset_index_rs",
-  srcs = [":asset_index_rs_files"],
+  name = "asset",
+  visibility = [ "//visibility:public" ],
+  srcs = [
+    "asset.rs"
+  ]
 )
 
+rust_library(
+  name = "asset_rs",
+  visibility = [ "//visibility:public" ],
+  deps = [
+    ":asset"
+  ],
+  srcs = [
+    ":gen_asset_rs_files",
+  ]
+)

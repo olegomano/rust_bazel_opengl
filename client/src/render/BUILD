@@ -54,7 +54,7 @@ rust_library(
 
 rust_library(
   name = "drawable",
-  srcs = ["drawable/drawable.rs", "drawable/triangle_drawable.rs"],
+  srcs = ["drawable/drawable.rs"],
   deps = [
     "//client/src/render:gl_context",
     "//cargo:glam",

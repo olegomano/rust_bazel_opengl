@@ -87,12 +87,11 @@ impl<T : AppData + 'static> AppInstance<T>{
                     self.app_data.Draw(&self.gl_context);    
                     self.gl_surface.swap_buffers(&self.window_context).unwrap();
                 },
-                Event::WindowEvent { event: WindowEvent::KeyboardInput { input, .. }, ..} => {
-                    // Handle keyboard input events
-                    self.key_manager.HandleInput(input);
-                },
                 Event::WindowEvent{event,..} =>{
                     match event{
+                        WindowEvent::KeyboardInput{event, ..} => {
+                            self.key_manager.HandleInput(event);
+                        },
                         WindowEvent::Resized(size) => {
                             println!("Window has been resized");
                             self.gl_surface.resize(

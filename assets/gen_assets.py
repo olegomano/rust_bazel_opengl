@@ -6,6 +6,15 @@ from dataclasses import dataclass
 IMAGE_ASSET = "image"
 
 @dataclass
+class Asset:
+    id : int 
+    path : str
+    name : str
+    type : object
+    failed_gen : bool = False
+
+
+@dataclass
 class AssetClass:
     name : str
     ext : List = None
@@ -29,22 +38,41 @@ class AssetGenerator():
     def __init__(self,context):
         print(context.working_dir)
         self._asset_id = 0
-        #map of asset_id -> path 
-        self._asset_id_lut = {}
-        self._asset_path_lut = {}
+        
         self._context = context
         self._gen_lut = self._generators_for_asset_type(context)
-        for _,asset_class in self._context.asset_info.items():
-            self._handle_asset_class(asset_class)
+        self._assets = self._discover_assets()
         
-        asset_index_py = self._gen_asset_index_python()
-        asset_index_rs = self._gen_asset_index_rust()
-        self._save_file("index/asset_index.py",asset_index_py)
-        self._save_file("index/asset_index.rs",asset_index_rs)
+        processed_assets = 0
+        for asset in self._assets:
+            for gen in self._gen_lut[asset.type]:
+                try:
+                    gen.gen(self,asset)
+                    print("{}/{}".format(processed_assets , len(self._assets)))
+                except Exception as e:
+                    print(e)
+                    asset.failed_gen = True
+                processed_assets += 1
+        
+        self._save_file("gen/lib.rs",self._gen_asset_lib_rs())
 
-    #generates all the asset files
-    def run(self):
-        pass
+    #traverse the generators and see what assets they want to use
+    def _discover_assets(self):
+        result = []
+
+        for gen in self._context.generators:
+            for asset_type in gen.asset_types:
+                for folder in self._context.asset_info[asset_type].folders:
+                    for file in self._collect_files(os.path.join(self._context.working_dir,folder)):
+                        self._asset_id = self._asset_id + 1
+                        asset = Asset(
+                            id = self._asset_id,
+                            path = file,
+                            name = file[len(self._context.working_dir):].replace("/","_").replace(" ","_").replace(".","_"),
+                            type = asset_type,
+                        )
+                        result.append(asset)
+        return result 
 
     #iterate the current folder and collect all the files
     def _collect_files(self,folder):
@@ -54,52 +82,16 @@ class AssetGenerator():
                 file_path = os.path.join(root, file)
                 all_files.append(file_path)
         return all_files
+ 
 
-    #for a given asset class find all the relevant files and generate the
-    #resultant bazel files
-    def _handle_asset_class(self,asset_class):
-        files = []
-        for folder in asset_class.folders:
-            folder_path = os.path.join(self._context.working_dir, folder)
-            files.extend(self._collect_files(folder_path))
-        
-        generators = self._gen_lut[asset_class.name]
-        
-        for file in files:
-            self._register_asset(file,asset_class)
-            for ext in asset_class.ext:
-                if ext in file:
-                    for gen in generators:
-                        gen.gen(file)
-    
-    #register the asset 
-    #this will generate an asset_id for the global LUT
-    def _register_asset(self,asset_path,asset_class):
-        asset_name = asset_path[len(self._context.working_dir):]
-        self._asset_id = self._asset_id + 1
-        self._asset_id_lut[self._asset_id] = asset_name
-        self._asset_path_lut[asset_name] = self._asset_id
-    
-    #create the python version of the asset index
-    def _gen_asset_index_python(self):
-        result = "ASSET_INDEX = {\n "
-        for id,path in self._asset_id_lut.items():
-            result = result + "\"{}\" :{},\n".format(path,id)
-        result = result + "}"
+    def _gen_asset_lib_rs(self):
+        MOD_TEMPLATE = "pub mod {};\n"
+        result = ""
+        for asset in self._assets:
+            if not asset.failed_gen:
+                result+= MOD_TEMPLATE.format(asset.name)
         return result
-    
-    #generate the asset index for rust 
-    def _gen_asset_index_rust(self):
-        result = "const ASSET_INDEX: [(&str,i32);{}]= [\n".format(len(self._asset_id_lut))
-        for id,path in self._asset_id_lut.items():
-            result = result + "(\"{}\", {}),\n".format(path,id)
-        result = result + "];"
-        return result
-
-    #generates a bazel file for the specified asset
-    def _gen_bazel_file(self,asset):
-        pass
-    
+   
     #saves a string to the following path relative to the bazel root
     def _save_file(self,path,data):
         path = os.path.join(self._context.output_dir,path)
@@ -111,6 +103,7 @@ class AssetGenerator():
     #asset_tyoe -> [Generators]
     def _generators_for_asset_type(self,context):
         result = {}
+        count = 0
         for generator in context.generators:
             for asset_type in generator.asset_types:
                 if asset_type in context.asset_info:
@@ -121,17 +114,20 @@ class AssetGenerator():
                     print("WARNING: Generator declared support for missing asset type " + str(asset_type))
         return result
 
-def rust_generator(asset):
+
+
+#generates 
+def img_generator_rust(generator,asset):
     #gen rust file that includes the asset
     #gen bazel file that exposes generated rust file
-    pass
+    rs_code = img_loader.to_rs(asset.name,asset.path)  
+    out_path = "gen/" + asset.name + ".rs"
+    generator._save_file(out_path,rs_code)
 
 
 #Runs the asset bazel generator, 
 #pass in the target directory you want to generate the bazel file to
 if __name__ == "__main__":
-    print("Hello World")
-    
     context = Context(
         working_dir = "/".join(sys.argv[0].split("/")[:-1]),
         output_dir = "/home/oleg/Documents/Dev/Galaga/assets",
@@ -140,11 +136,11 @@ if __name__ == "__main__":
                 name = IMAGE_ASSET,
                 ext = [".png"],
                 folders = ["image"]
-            )
+            ),
         },
         generators = [
             Generator(
-                gen = rust_generator,
+                gen = img_generator_rust,
                 asset_types = [IMAGE_ASSET]
             ),
         ]

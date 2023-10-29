@@ -1,11 +1,14 @@
-use winit::event::{Event, WindowEvent,ElementState,VirtualKeyCode};
-use winit::event::KeyboardInput;
+use winit::event::{Event, WindowEvent,ElementState};
 use std::collections::HashMap;
 use std::time::{Instant, Duration};
+use winit::event::WindowEvent::KeyboardInput;
+use winit::event::KeyEvent;
+use winit::keyboard::KeyCode;
+use winit::keyboard::Key;
 
 #[derive(Debug)]
 pub struct KeyInfo{
-    key_code : VirtualKeyCode,
+    key : Key,
     down_time : Instant,
     hold_time : Duration,
     pressed : bool,
@@ -13,7 +16,7 @@ pub struct KeyInfo{
 
 #[derive(Debug)]
 pub struct KeyManager{
-    key_map : HashMap<VirtualKeyCode,KeyInfo>,
+    key_map : HashMap<Key,KeyInfo>,
 }
 
 impl KeyManager{
@@ -23,37 +26,37 @@ impl KeyManager{
         }
     }
     
-    pub fn KeyState(&self) -> &HashMap<VirtualKeyCode,KeyInfo>{
+    pub fn KeyState(&self) -> &HashMap<Key,KeyInfo>{
         return &self.key_map;
     }
     
-    pub fn IsDown(&self, key_code : VirtualKeyCode) -> bool {
+    pub fn IsDown(&self, key_code : Key) -> bool {
         if let Some(key_info) = self.key_map.get(&key_code){
             return key_info.pressed;
         }
         return false;
     }
 
-    pub fn HandleInput(&mut self, event : KeyboardInput){
-        if let Some(key_code) = event.virtual_keycode {
-            let now = Instant::now();
-            
-            match event.state {
-                ElementState::Pressed => {
-                    self.key_map.insert(key_code,KeyInfo{
-                        key_code : key_code,
-                        down_time : now,
-                        hold_time : Duration::default(),
-                        pressed : true,
-                    });       
-                }
-                ElementState::Released => {
-                    if let Some(info) = self.key_map.get_mut(&key_code) {
-                        info.hold_time = now - info.down_time;
-                        info.pressed = false;
-                    } 
-                }      
+    pub fn HandleInput(&mut self, event : KeyEvent ){
+        let now = Instant::now();        
+        match event.state {
+            ElementState::Pressed => {
+                self.key_map.insert(event.logical_key.clone(),KeyInfo{
+                    key : event.logical_key.clone(),
+                    down_time : now,
+                    hold_time : Duration::default(),
+                    pressed : true,
+                });       
+            }
+        
+            ElementState::Released => {
+                if let Some(info) = self.key_map.get_mut(&event.logical_key) {
+                    info.hold_time = now - info.down_time;
+                    info.pressed = false;
+                } 
             }
         }
-    }
+    }   
 }
+
+

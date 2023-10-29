@@ -45,6 +45,7 @@ rust_binary(
       "//client/src/render:key_manager",
       "//client/src/render:texture",
       "//cargo:glam",
+      "//assets:asset_rs",
       "//client/src/render:gl_context",
     ]
 )
