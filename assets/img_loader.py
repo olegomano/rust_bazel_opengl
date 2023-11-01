@@ -6,13 +6,13 @@ extern crate asset;
 """
 
 RS_TEMPLATE = """
-static {var_name}_asset : &'static asset::Asset= &asset::Asset{{
+pub const _asset : &'static asset::Asset= &asset::Asset{{
     name : "{name}",
     data : {var_name},
 }};        
 """
 
-BYTE_ARRAY_TEMPLATE = "static {var_name}: &'static [u8] = &[{hex_arr}];"
+BYTE_ARRAY_TEMPLATE = "const {var_name}: &'static [u8] = &[{hex_arr}];"
 
 #generates a string that contains all assets backed into it
 #static MY_STATIC_BYTE_ARRAY: [u8; 4] = [0x01, 0x02, 0x03, 0x04];

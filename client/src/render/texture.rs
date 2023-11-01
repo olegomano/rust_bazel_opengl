@@ -1,8 +1,25 @@
 extern crate gl_context;
 extern crate image;
+extern crate gl_utils;
 use gl_context::gl;
 use gl_context::gl::types::GLuint;
 use image::io::Reader as ImageReader;
+
+
+unsafe fn CheckError(gl_context : &gl::Gl) -> Option<String>{
+    let err =  gl_context.GetError();
+    match err {
+        gl::NO_ERROR => {
+            return None;
+        } 
+        _ => {
+            return Some(format!(
+                "Gl Error:{}",err
+            ));    
+        }
+    }
+}
+
 
 #[derive(Clone)]
 pub struct Texture{
@@ -23,25 +40,27 @@ impl Texture{
     pub fn Update(&self,handle : gl::types::GLuint) {
         self.handle.replace(handle);
     }
-
-    pub fn Load(&self,image_data : &[u8], gl : &gl::Gl) {
+    
+    #[gl_utils::timed]
+    #[gl_utils::gl_error]
+    pub fn Load(&self,image_data : &[u8], gl_context : &gl::Gl) {
         let mut texture_id: GLuint = 0;
         let width = 128;
         let height = 128;
         unsafe{
-             gl.GenTextures(1, &mut texture_id);
-             gl.BindTexture(gl::TEXTURE_2D, texture_id);
-             gl.TexParameteri(
+             gl_context.GenTextures(1, &mut texture_id);
+             gl_context.BindTexture(gl::TEXTURE_2D, texture_id);
+             gl_context.TexParameteri(
                 gl::TEXTURE_2D,
                 gl::TEXTURE_MIN_FILTER,
                 gl::LINEAR as i32,
             );
-            gl.TexParameteri(
+            gl_context.TexParameteri(
                 gl::TEXTURE_2D,
                 gl::TEXTURE_MAG_FILTER,
                 gl::LINEAR as i32,
             );
-            gl.TexImage2D(
+            gl_context.TexImage2D(
                 gl::TEXTURE_2D,
                 0,
                 gl::RGBA as i32,

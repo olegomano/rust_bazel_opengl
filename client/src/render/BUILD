@@ -96,6 +96,9 @@ rust_library(
 rust_library(
   name = "texture",
   srcs = ["texture.rs"],
+  proc_macro_deps = [
+    ":gl_utils"
+  ],
   deps = [
     "//client/src/render:gl_context",
     "//cargo:image",

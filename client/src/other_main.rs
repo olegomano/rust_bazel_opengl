@@ -6,11 +6,11 @@ extern crate gl_context;
 extern crate glam;
 extern crate key_manager;
 extern crate winit;
+extern crate asset_rs;
 use drawable::SpriteDrawable;
 use gl_context::gl;
 use winit::keyboard::Key;
 use std::rc::{Rc, Weak};
-
 
 struct Data{
     counter : i32,
@@ -31,13 +31,15 @@ impl window::AppData for Data{
      
     fn Draw(&self,gl : &gl::Gl){
         let rotate = glam::Mat4::from_rotation_z(0.1);
-        self.tris.UpdateTransform(&(rotate * self.tris.Transform()));
+        //self.tris.UpdateTransform(&(rotate * self.tris.Transform()));
         self.shader.get().Render(&self.tris,gl);                
     }
 
     fn Init(&self,gl : &gl::Gl){
         self.shader.replace( default_shader::DefaultShader::new(gl).unwrap() );
         self.tris.Load(gl);
+        self.texture.Load(asset_rs::_image_Infernus_Tiles_Anim_Infernus_Lightsources_1_png::_asset.data,gl);
+        self.tris.SetTexture(&self.texture);
     }
 
     fn HandleKeyboard(&self, keys : &key_manager::KeyManager, gl : &gl::Gl){
@@ -45,7 +47,7 @@ impl window::AppData for Data{
             let translate = glam::Mat4::from_translation(glam::Vec3::new(0.05,0.0,0.0));
             self.tris.UpdateTransform(&(translate * self.tris.Transform()));
         }
-        if (keys.IsDown(Key::Character("S".into()))){
+        if (keys.IsDown(Key::Character("s".into()))){
             let translate = glam::Mat4::from_translation(glam::Vec3::new(-0.05,0.0,0.0));
             self.tris.UpdateTransform(&(translate * self.tris.Transform()));
         }

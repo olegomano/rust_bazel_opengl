@@ -12,14 +12,14 @@ const VERTEX_SHADER_SOURCE: &str = "
     precision mediump float;
     
     uniform mat4 transform;
-
+    
     in vec2 position;
     in vec3 color;
 
     out vec3 v_color;
 
     void main() {
-        gl_Position = transform * vec4(position, 0.0, 1.0);
+        gl_Position = transform * vec4(position, 0.0, 1.0);        
         v_color = color;
     }
     \0";
@@ -27,11 +27,13 @@ const VERTEX_SHADER_SOURCE: &str = "
 const FRAGMENT_SHADER_SOURCE: &str= "
     #version 300 es
     precision mediump float;
+    uniform sampler2D texture;
 
     in vec3 v_color;
     out vec4 FragColor;
     void main() {
-        FragColor = vec4(v_color, 1.0);
+        vec4 color = texture2D(texture, v_color.xy);
+        FragColor = color;
     }
     \0";
 
