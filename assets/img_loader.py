@@ -9,6 +9,8 @@ RS_TEMPLATE = """
 pub const _asset : &'static asset::Asset= &asset::Asset{{
     name : "{name}",
     data : {var_name},
+    width : {width},
+    height : {height},
 }};        
 """
 
@@ -41,6 +43,8 @@ def to_rs(var_name,path):
     struct_decl =  RS_TEMPLATE.format(
         var_name = var_name,
         name = var_name,
+        width = width,
+        height = height,
         id = ""
     )
     

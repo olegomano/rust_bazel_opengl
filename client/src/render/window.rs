@@ -22,14 +22,14 @@ extern crate key_manager;
 use gl_context::gl;
 
 pub trait AppData{
-    fn new() -> Rc<Self>;
-    fn Draw(&self,gl : &gl::Gl);
-    fn Init(&self,gl : &gl::Gl);
-    fn HandleKeyboard(&self, keys : &key_manager::KeyManager, gl : &gl::Gl);
+    fn new() -> Box<Self>;
+    fn Draw(&mut self,gl : &gl::Gl);
+    fn Init(&mut self,gl : &gl::Gl);
+    fn HandleKeyboard(&mut self, keys : &key_manager::KeyManager, gl : &gl::Gl);
 }
 
 pub struct AppInstance<T>{
-    app_data : Rc<T>,
+    app_data : Box<T>,
     event_loop : std::cell::UnsafeCell<winit::event_loop::EventLoop<()>>,
     key_manager : key_manager::KeyManager,
     gl_context : gl::Gl,
@@ -71,6 +71,9 @@ impl<T : AppData + 'static> AppInstance<T>{
             let mut vao = std::mem::zeroed();
             self.gl_context.GenVertexArrays(1, &mut vao);
             self.gl_context.BindVertexArray(vao);
+            self.gl_context.Disable(gl::BLEND);
+            self.gl_context.Enable(gl::DEPTH_TEST);
+            self.gl_context.ClearColor(1.0, 1.0, 1.0, 1.0);
         }
         self.EventLoop().run(move |event, window_target, control_flow| {
             control_flow.set_wait();
@@ -80,11 +83,11 @@ impl<T : AppData + 'static> AppInstance<T>{
                 },
                 Event::RedrawEventsCleared => {
                     unsafe{
-                        self.gl_context.ClearColor(0.1, 0.1, 0.1, 0.9);
-                        self.gl_context.Clear(gl::COLOR_BUFFER_BIT);
+                        self.gl_context.Clear(gl::COLOR_BUFFER_BIT | gl::DEPTH_BUFFER_BIT);
                     }
                     self.app_data.HandleKeyboard(&mut self.key_manager,&self.gl_context);
-                    self.app_data.Draw(&self.gl_context);    
+                    self.app_data.Draw(&self.gl_context);
+                    self.window.request_redraw();
                     self.gl_surface.swap_buffers(&self.window_context).unwrap();
                 },
                 Event::WindowEvent{event,..} =>{
@@ -99,6 +102,10 @@ impl<T : AppData + 'static> AppInstance<T>{
                                 NonZeroU32::new(size.width).unwrap(),
                                 NonZeroU32::new(size.height).unwrap(),
                             );
+                            unsafe{
+                                self.gl_context.Viewport(0, 0, size.width as i32, size.height as i32);
+                            
+                            }
                         },
                         WindowEvent::CloseRequested=>{
                             control_flow.set_exit();
@@ -145,8 +152,11 @@ impl<T : AppData + 'static> AppInstance<T>{
              PossiblyCurrentContext,
              winit::window::Window,
              ){
-        let window_builder = Some(WindowBuilder::new().with_transparent(true));
-        let template =  ConfigTemplateBuilder::new().with_alpha_size(8).with_transparency(cfg!(cgl_backend));
+        let window_builder = Some(WindowBuilder::new()
+            .with_transparent(false)
+            .with_decorations(false)
+        );
+        let template =  ConfigTemplateBuilder::new().with_transparency(false);
         let display_builder = DisplayBuilder::new().with_window_builder(window_builder);
         let (mut window_option, gl_config) = display_builder
         .build(&event_loop, template, |configs| {
@@ -157,7 +167,7 @@ impl<T : AppData + 'static> AppInstance<T>{
                     let transparency_check = config.supports_transparency().unwrap_or(false)
                         & !accum.supports_transparency().unwrap_or(false);
 
-                 if transparency_check || config.num_samples() > accum.num_samples() {
+                 if transparency_check {
                         config
                     } else {
                         accum

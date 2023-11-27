@@ -37,7 +37,9 @@ rust_library(
 
 rust_library(
   name = "default_shader",
-  srcs = ["shaders/default_shader.rs"],
+  srcs = [
+    "shaders/default_shader.rs",
+  ],
   deps = [
     "//client/src/render:gl_context",
     "//cargo:glam",
@@ -50,6 +52,26 @@ rust_library(
     ":gl_utils"
   ]
 )
+
+rust_library(
+  name = "mesh_shader",
+  srcs = [
+    "shaders/mesh_shader.rs"
+  ],
+  deps = [
+    "//client/src/render:gl_context",
+    "//cargo:glam",
+    ":shader",
+    ":vbo",
+    ":drawable",
+    ":texture",
+  ],
+  proc_macro_deps = [
+    ":gl_utils"
+  ]
+)
+
+
 
 
 rust_library(
@@ -84,6 +106,24 @@ rust_library(
 )
 
 rust_library(
+  name = "sprite_manager",
+  srcs = ["drawable/sprite_manager.rs"],
+  deps = [
+    "//client/src/render:gl_context",
+    "//cargo:glam",
+    ":default_shader",
+    ":drawable",
+    ":vbo",
+    ":texture",
+    ":triangle_drawable",
+  ],
+  proc_macro_deps = [
+    ":gl_utils"
+  ]
+)
+
+
+rust_library(
   name = "key_manager",
   srcs = ["key_manager.rs"],
   deps = [
@@ -101,7 +141,7 @@ rust_library(
   ],
   deps = [
     "//client/src/render:gl_context",
-    "//cargo:image",
+    "//assets:asset",
   ]
 )
 

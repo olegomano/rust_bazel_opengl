@@ -13,13 +13,13 @@ const VERTEX_SHADER_SOURCE: &str = "
     
     uniform mat4 transform;
     
-    in vec2 position;
-    in vec3 color;
+    in vec3 position;
+    in vec2 color;
 
-    out vec3 v_color;
+    out vec2 v_color;
 
     void main() {
-        gl_Position = transform * vec4(position, 0.0, 1.0);        
+        gl_Position = transform * vec4(position.x,position.y, 0.0, 1.0);        
         v_color = color;
     }
     \0";
@@ -29,7 +29,7 @@ const FRAGMENT_SHADER_SOURCE: &str= "
     precision mediump float;
     uniform sampler2D texture;
 
-    in vec3 v_color;
+    in vec2 v_color;
     out vec4 FragColor;
     void main() {
         vec4 color = texture2D(texture, v_color.xy);
@@ -116,6 +116,7 @@ impl DefaultShader{
     pub fn Render(&self, drawable : &dyn drawable::SpriteDrawable, gl : &gl::Gl){
         self.Enable(gl);
         drawable.Buffer().Bind(gl);
+        drawable.Texture().Bind(gl);
         self.shader.SetUniformMat(self.transform_uniform,&drawable.Transform(),gl);
         self.shader.SetAttrib(self.pos_attr,drawable.PosAttribute(),gl); 
         self.shader.SetAttrib(self.uv_attr,drawable.UvAttribute(),gl);

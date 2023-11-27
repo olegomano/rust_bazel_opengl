@@ -42,17 +42,18 @@ class AssetGenerator():
         self._context = context
         self._gen_lut = self._generators_for_asset_type(context)
         self._assets = self._discover_assets()
-        
+        print("Discovered " + str(len(self._assets)) + " assets")
+
         processed_assets = 0
         for asset in self._assets:
             for gen in self._gen_lut[asset.type]:
                 try:
                     gen.gen(self,asset)
-                    print("{}/{}".format(processed_assets , len(self._assets)))
                 except Exception as e:
                     print(e)
                     asset.failed_gen = True
                 processed_assets += 1
+                print("{}/{}".format(processed_assets , len(self._assets)))
         
         self._save_file("gen/lib.rs",self._gen_asset_lib_rs())
 
@@ -130,7 +131,7 @@ def img_generator_rust(generator,asset):
 if __name__ == "__main__":
     context = Context(
         working_dir = "/".join(sys.argv[0].split("/")[:-1]),
-        output_dir = "/home/oleg/Documents/Dev/Galaga/assets",
+        output_dir = "/home/oleg/Documents/Dev/Galaga/assets", #TODO(oleg): pass in output dir as env var
         asset_info = {
             IMAGE_ASSET : AssetClass(
                 name = IMAGE_ASSET,

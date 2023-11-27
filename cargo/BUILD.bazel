@@ -76,15 +76,6 @@ alias(
 )
 
 alias(
-    name = "png",
-    actual = "//cargo/vendor/png-0.17.9:png",
-    tags = [
-        "cargo-raze",
-        "manual",
-    ],
-)
-
-alias(
     name = "quote",
     actual = "//cargo/vendor/quote-1.0.31:quote",
     tags = [

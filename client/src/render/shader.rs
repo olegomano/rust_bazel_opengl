@@ -134,6 +134,7 @@ pub trait Attribute{
 pub struct Layout{
     pub count : i32,
     pub stride : usize,
+    pub offset : usize,
 }
 
 impl Layout{
@@ -142,6 +143,9 @@ impl Layout{
     }
     pub fn Stride(&self) -> usize{
         return self.stride;
+    }
+    pub fn Offset(&self) -> usize{
+        return self.offset;
     }
 }
 
@@ -208,8 +212,9 @@ impl Shader{
                 gl::FLOAT,
                 0,
                 (layout.Stride() * std::mem::size_of::<f32>()) as gl::types::GLsizei,
-                std::ptr::null()
-            );
+                (layout.Offset() * std::mem::size_of::<f32>()) as *const gl::types::GLvoid
+
+            )
         }
     }
 }

@@ -1,9 +1,8 @@
 extern crate gl_context;
-extern crate image;
 extern crate gl_utils;
+extern crate asset;
 use gl_context::gl;
 use gl_context::gl::types::GLuint;
-use image::io::Reader as ImageReader;
 
 
 unsafe fn CheckError(gl_context : &gl::Gl) -> Option<String>{
@@ -27,6 +26,18 @@ pub struct Texture{
 }
 
 impl Texture{
+    pub fn new(image_data : &[u8], gl_context : &gl::Gl) -> Self{
+        let res = Self::default();
+        res.Load(image_data,128,128,gl_context);
+        return res;
+    }
+
+    pub fn from_asset(asset : &asset::Asset, gl_context : &gl::Gl) -> Self{
+        let res = Self::default();
+        res.Load(asset.data,asset.width,asset.height,gl_context);
+        return res;
+    }
+
     pub fn default() -> Self{
         return Self{
             handle : std::cell::Cell::new(0),
@@ -41,12 +52,15 @@ impl Texture{
         self.handle.replace(handle);
     }
     
+    #[gl_utils::gl_error]
+    pub fn Bind(&self, gl_context : &gl::Gl){
+        gl_context.BindTexture(gl::TEXTURE_2D, self.handle.get());
+    }
+
     #[gl_utils::timed]
     #[gl_utils::gl_error]
-    pub fn Load(&self,image_data : &[u8], gl_context : &gl::Gl) {
+    pub fn Load(&self,image_data : &[u8], width : i32, height : i32, gl_context : &gl::Gl) {
         let mut texture_id: GLuint = 0;
-        let width = 128;
-        let height = 128;
         unsafe{
              gl_context.GenTextures(1, &mut texture_id);
              gl_context.BindTexture(gl::TEXTURE_2D, texture_id);

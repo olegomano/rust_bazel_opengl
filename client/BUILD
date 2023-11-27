@@ -39,6 +39,8 @@ rust_binary(
       "//cargo:glutin_winit",
       "//client/src/render:window",
       "//client/src/render:default_shader",
+      "//client/src/render:mesh_shader",
+      "//client/src/render:sprite_manager",
       "//client/src/render:vbo",
       "//client/src/render:drawable",
       "//client/src/render:triangle_drawable",

@@ -74,7 +74,7 @@ khronos_api = {}
 
 [features]
 default = ["egl", "glx", "x11", "wayland", "wgl"]
-egl = ["glutin-winit/egl", "png"]
+egl = ["glutin-winit/egl"]
 glx = ["glutin-winit/glx"]
 wgl = ["glutin-winit/wgl"]
 x11 = ["glutin-winit/x11"]
