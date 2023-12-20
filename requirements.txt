@@ -1,2 +1,6 @@
 pypng==0.20220715.0
+PyQt6
+PyQt6-sip
+PyQt6-Qt6
+numpy
 
