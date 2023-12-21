@@ -25,6 +25,7 @@ class MainWindow(Base, Form):
         self._sprite_widget = sprite.SpriteTreeWidget(
             self.treeWidget,
             self.tableWidget,
+            self._scene,
             self._sprite_manager,
         )
 
@@ -37,7 +38,8 @@ class MainWindow(Base, Form):
     
     def handle_mouse_event(self,event):
         if self._selected_tool is not None:
-            self._selected_tool.handle_mouse_event(event)
+            pos = self.graphicsView.mapToScene(event.pos())
+            self._selected_tool.handle_mouse_event(pos.x(),pos.y())
 
     def add_sprite(self):
         self._sprite_manager.AddSprite(selected = True)
