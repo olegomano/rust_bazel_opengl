@@ -199,11 +199,6 @@
     <string>Delete Sprite</string>
    </property>
   </action>
-  <action name="action_delete_vertex">
-   <property name="text">
-    <string>Delete Vertex</string>
-   </property>
-  </action>
  </widget>
  <resources/>
  <connections>

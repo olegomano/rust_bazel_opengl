@@ -1,8 +1,24 @@
 from dataclasses import dataclass,field
 from typing import List
-from PyQt5.QtWidgets import QApplication, QTreeWidget, QTreeWidgetItem, QVBoxLayout, QWidget, QTableWidgetItem, QGraphicsScene, QGraphicsView, QGraphicsPolygonItem
-from PyQt5.QtGui import QPolygonF
+from PyQt5.QtWidgets import (
+    QApplication, 
+    QTreeWidget, 
+    QTreeWidgetItem,
+    QVBoxLayout, 
+    QWidget, 
+    QTableWidgetItem, 
+    QGraphicsScene, 
+    QGraphicsView,
+    QGraphicsPolygonItem,
+    QGraphicsEllipseItem,
+    QMenu,
+    QAction,
+)
+
+
+from PyQt5.QtGui import QPolygonF,QColor
 from PyQt5.QtCore import QPoint,QPointF
+from PyQt5.QtCore import Qt
 
 @dataclass
 class Attribute:
@@ -46,6 +62,7 @@ class SpriteManager:
         
         self._on_vertex_selected = None
         self._on_sprite_selected = None
+        self._on_vertex_deleted = None
 
     def AddSprite(self, selected : bool = False) -> int: 
         id = self._id
@@ -82,8 +99,17 @@ class SpriteManager:
         if id in self._vertex_list:
             self.SelectVertex(id)
 
+    def DeleteId(self,id : int):
+        print("Deleting id {}".format(id))
+        if id in self._vertex_list:
+            vertex = self._vertex_list[id]
+            del self._vertex_list[id]
+            del self._sprite_list[vertex.sprite_id].vertex_list[id]
+            self._on_vertex_deleted(vertex.sprite_id,id)
 
 class SpriteTreeWidget:
+    MARKER_SIZE = 15
+    
     def __init__(self,tree_widget,table_widget,graphics_scene, sprite_manager):
         self._tree_widget = tree_widget
         self._table_widget = table_widget
@@ -100,9 +126,38 @@ class SpriteTreeWidget:
         self._sprite_manager._on_new_sprite = self.OnSpriteCreated
         self._sprite_manager._on_vertex_added = self.OnVertexAdded
         self._sprite_manager._on_vertex_selected = self.OnVertexSelected
+        self._sprite_manager._on_vertex_deleted = self.DeleteVertex
 
+        #set up right click handler on tree widget
+        self._tree_widget.setContextMenuPolicy(Qt.CustomContextMenu)
+        self._tree_widget.customContextMenuRequested.connect(self.ShowContextMenu)
+
+
+        # sprite_id -> QTreeWidgetItem
         self._items = {}
+        # sprite_id -> QPolygon
         self._sprite_scene_items = {}
+        # vertex_id -> QEllipse
+        self._vertex_markers = {}
+        # marker for currently selected vertex
+        self._selected_vertex_item = None
+    
+    #show the right click context menu on tree item
+    def ShowContextMenu(self,point):
+        def do_delete(id):
+            return lambda: self._sprite_manager.DeleteId(id)
+    
+
+        item = self._tree_widget.itemAt(point)
+        id = int(item.text(0))
+
+        menu = QMenu(self._tree_widget)
+        delete_action = QAction("Delete", self._tree_widget)
+        delete_action.triggered.connect(do_delete(id))
+
+
+        menu.addAction(delete_action)
+        action = menu.exec_(self._tree_widget.mapToGlobal(point))
 
     def OnSpriteCreated(self,sprite_id : int):
         item = QTreeWidgetItem(self._tree_widget)
@@ -125,10 +180,42 @@ class SpriteTreeWidget:
         polygon_item, polygon = self._sprite_scene_items[sprite_id]
         polygon.append(QPointF(vertex.uv_x,vertex.uv_y)) 
         polygon_item.setPolygon(polygon)
-
         
+
+        circle_item = QGraphicsEllipseItem(0,0,self.MARKER_SIZE,self.MARKER_SIZE)
+        circle_item.setPos(vertex.uv_x - self.MARKER_SIZE / 2,vertex.uv_y- self.MARKER_SIZE/3)
+        self._graphics_scene.addItem(circle_item)
+        self._vertex_markers[vertex_id] = circle_item
+
         self.ShowVertexAttributes(vertex_id)
         
+
+
+
+    def DeleteVertex(self, sprite_id : int, vertex_id : int):
+        #delete vertex marker
+        vertex_marker = self._vertex_markers[vertex_id]
+        self._graphics_scene.removeItem(vertex_marker)
+        #delete old polygon item
+        polygon_item,_ = self._sprite_scene_items[sprite_id]
+        self._graphics_scene.removeItem(polygon_item)
+            
+        #remove tree item from the tree widget
+        self._items[sprite_id].removeChild(self._items[vertex_id])
+        del self._items[vertex_id]
+        
+        #we re-create the polygon by iterating over all the vertex
+        #we assume the vertex_id has already beem deleted out of the sprite_manager
+        polygon_item = QGraphicsPolygonItem()
+        polygon = QPolygonF()
+        sprite = self._sprite_manager._sprite_list[sprite_id]
+        for vertex_id,vertex in sprite.vertex_list.items():
+            polygon.append(QPointF(vertex.uv_x,vertex.uv_y))
+
+        polygon_item.setPolygon(polygon)
+        self._graphics_scene.addItem(polygon_item)
+        self._sprite_scene_items[sprite_id] = polygon_item,polygon
+
 
     
     def ShowVertexAttributes(self,vertex_id : int):
@@ -147,6 +234,18 @@ class SpriteTreeWidget:
     def OnVertexSelected(self,sprite_id : int, vertex_id : int):
         self._table_widget.clear()
         self.ShowVertexAttributes(vertex_id)
+        if self._selected_vertex_item is not None:
+            self._graphics_scene.removeItem(self._selected_vertex_item)
+
+        
+        vertex = self._sprite_manager._vertex_list[vertex_id]
+
+        circle_item = QGraphicsEllipseItem(0,0,self.MARKER_SIZE,self.MARKER_SIZE)
+        circle_item.setPos(vertex.uv_x - self.MARKER_SIZE / 2,vertex.uv_y- self.MARKER_SIZE/3)
+        circle_item.setBrush(QColor(255, 0, 0))
+        self._graphics_scene.addItem(circle_item)
+        
+        self._selected_vertex_item = circle_item
 
     # callback from UI on when an item in the TreeWidget is selected
     def OnItemSelected(self):
