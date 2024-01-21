@@ -17,7 +17,7 @@ pub struct SpriteManager{
 impl SpriteManager{
     pub fn new(gl_context : &gl::Gl) -> Self{
         return Self{
-            mesh : triangle_drawable::MeshDrawable::new_rect(gl),
+            mesh : triangle_drawable::MeshDrawable::new_rect(gl_context),
             transform_list : std::vec::Vec::new(),
         }
     }
@@ -41,6 +41,8 @@ impl SpriteManager{
             gl_context : &gl::Gl){
 
         self.mesh.SetTexture(texture); 
+        texture.Bind();
+
         for transform in &self.transform_list {
             self.mesh.UpdateTransform(transform);
             shader.Render(&self.mesh,gl_context);

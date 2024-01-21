@@ -8,7 +8,7 @@ extern crate glam;
 extern crate key_manager;
 extern crate winit;
 extern crate asset_rs;
-extern crate sprite_manager;
+extern crate sprite_drawable;
 use drawable::SpriteDrawable;
 use gl_context::gl;
 use winit::keyboard::Key;

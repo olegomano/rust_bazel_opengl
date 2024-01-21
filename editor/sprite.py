@@ -16,7 +16,7 @@ from PyQt5.QtWidgets import (
 )
 
 
-from PyQt5.QtGui import QPolygonF,QColor
+from PyQt5.QtGui import QPolygonF,QColor,QPen
 from PyQt5.QtCore import QPoint,QPointF
 from PyQt5.QtCore import Qt
 
@@ -174,6 +174,11 @@ class SpriteTreeWidget:
         if sprite_id not in self._sprite_scene_items:
             polygon_item = QGraphicsPolygonItem()
             polygon = QPolygonF()
+            
+            pen = QPen(QColor(255, 0, 0))
+            pen.setWidth(3)
+            polygon_item.setPen(pen)
+
             self._graphics_scene.addItem(polygon_item)
             self._sprite_scene_items[sprite_id] = polygon_item,polygon
         
@@ -208,6 +213,11 @@ class SpriteTreeWidget:
         #we assume the vertex_id has already beem deleted out of the sprite_manager
         polygon_item = QGraphicsPolygonItem()
         polygon = QPolygonF()
+            
+        pen = QPen(QColor(255, 0, 0))
+        pen.setWidth(3)
+        polygon_item.setPen(pen)
+        
         sprite = self._sprite_manager._sprite_list[sprite_id]
         for vertex_id,vertex in sprite.vertex_list.items():
             polygon.append(QPointF(vertex.uv_x,vertex.uv_y))

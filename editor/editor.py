@@ -17,6 +17,8 @@ class MainWindow(Base, Form):
         self.setupUi(self)
 
         self.action_open.triggered.connect(lambda: self.open_image_selector())
+        self.action_export.triggered.connect(lambda : self.export())
+
         self.graphicsView.setScene(self._scene)
         self.graphicsView.mousePressEvent = lambda event : self.handle_mouse_event(event)
         self.action_add_sprite.triggered.connect(lambda : self.add_sprite())
@@ -43,6 +45,7 @@ class MainWindow(Base, Form):
 
     def add_sprite(self):
         self._sprite_manager.AddSprite(selected = True)
+    
 
     #iterate over all the actions in the UI and set their icons if 
     #they are available
@@ -71,6 +74,9 @@ class MainWindow(Base, Form):
 
         print(fname)
         self.display_image(fname[0])
+    
+    def export(self):
+        pass
 
     def display_image(self,path):
         image = QImage(path)

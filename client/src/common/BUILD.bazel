@@ -1,0 +1,24 @@
+load("@rules_rust//rust:defs.bzl", "rust_binary", "rust_library", "rust_proc_macro","rust_test")
+
+rust_proc_macro(
+  name = "ecs_proc_macro",
+  srcs = ["ecs_proc_macro.rs"],
+  deps = [
+    "//cargo:syn",
+    "//cargo:quote"
+  ]
+)
+
+rust_library(
+  name = "ecs",
+  srcs = ["ecs.rs"],
+)
+
+rust_test(
+  name = "ecs_test",
+  srcs = ["test/ecs_test.rs"],
+  deps = [":ecs"],
+  proc_macro_deps =[
+    ":ecs_proc_macro"
+  ],
+)
