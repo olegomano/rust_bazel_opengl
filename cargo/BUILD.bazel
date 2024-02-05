@@ -85,6 +85,15 @@ alias(
 )
 
 alias(
+    name = "proc_macro2",
+    actual = "//cargo/vendor/proc-macro2-1.0.66:proc_macro2",
+    tags = [
+        "cargo-raze",
+        "manual",
+    ],
+)
+
+alias(
     name = "raw_window_handle",
     actual = "//cargo/vendor/raw-window-handle-0.5.2:raw_window_handle",
     tags = [

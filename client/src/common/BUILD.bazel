@@ -5,7 +5,8 @@ rust_proc_macro(
   srcs = ["ecs_proc_macro.rs"],
   deps = [
     "//cargo:syn",
-    "//cargo:quote"
+    "//cargo:quote",
+    "//cargo:proc_macro2",
   ]
 )
 

@@ -65,6 +65,8 @@ quote = {}
 syn = { version = "1.0.86", features = ["full"] }
 glam = "0.24.1"
 image = {}
+proc_macro = {}
+proc_macro2 = {}
 
 [build-dependencies]
 gl_generator = {}
