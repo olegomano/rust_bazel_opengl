@@ -10,7 +10,16 @@ mod test {
 
     #[test]
     fn ecs_test(){
+        print!("Started");
         let ecs = EcsSystem::new();
-        ecs.f32(&2.0,ecs::EntityId(0));
+        let entity = ecs.entity_manager.NewEntity();
+        ecs.Addf32(&2.0,entity);
+        for float in ecs.Iteratef32() {
+            println!("{}",float);
+        }
+        for entity in ecs.Entities() {
+            println!("{:?}",entity);
+        }
+        print!("Finished");
     }
 }   

@@ -21,31 +21,10 @@ pub struct ComponentArray<T : Clone>{
     array : UnsafeCell<std::vec::Vec<Component<T>>>
 }
 
-pub struct ComponentIterator<'a,T : Clone> {
-    parent : &'a ComponentArray<T>,
-    index : usize,
-}
-
-impl<'a,T : Clone> Iterator for ComponentIterator<'a,T>{
-    type Item = &'a T;
-
-    fn next(&mut self) -> Option<Self::Item> {
-        unsafe{
-            if self.index >= (*self.parent.array.get()).len() {
-                return None;
-            }
-            self.index = self.index + 1;
-            return Some(&(*self.parent.array.get())[self.index - 1].data);
-        }
-    }
-}
-
-
-
 #[derive(Clone,Debug)]
-pub struct Entity{
-    pub entity_id : EntityId,
-    pub components : HashMap<TypeId,ComponentId>
+struct Entity{
+    entity_id : EntityId,
+    components : HashMap<TypeId,ComponentId>
 }
 
 /*
@@ -93,23 +72,6 @@ impl<T : Clone> ComponentArray<T> {
             return mut_array.len() - 1;
         }
     }
-    
-    pub fn Get(&self,index : usize) -> Option<&T> {
-        unsafe{
-            let mut_array : &mut std::vec::Vec<Component<T>> = &mut *self.array.get();
-            if index >= mut_array.len() {
-                return None;
-            }
-            return Some(&mut_array[index].data);
-        }
-    }
-
-    pub fn into_iter(&self) -> ComponentIterator<T> {
-        return ComponentIterator{
-            parent : self,
-            index : 0,
-        }
-    }
 }
 
 impl<COMPONENT_TYPE,COMPONENT_ARRAY_TYPE> EntityManager<COMPONENT_TYPE,COMPONENT_ARRAY_TYPE>{
@@ -133,10 +95,6 @@ impl<COMPONENT_TYPE,COMPONENT_ARRAY_TYPE> EntityManager<COMPONENT_TYPE,COMPONENT
             phantom_enum : PhantomData,
         }
     }
-    
-    pub fn Entities(&self) -> impl Iterator<Item = &Entity> {
-        return self._EntitiesMut().values();
-    }
 
     pub fn NewEntity(&self) -> EntityId {
         let entities = self._EntitiesMut();
@@ -152,10 +110,6 @@ impl<COMPONENT_TYPE,COMPONENT_ARRAY_TYPE> EntityManager<COMPONENT_TYPE,COMPONENT
         return entity_id;
     }
 
-    pub fn GetEntity(&self, entity_id : &EntityId) -> Option<&Entity> {
-        return self._EntitiesMut().get(entity_id);
-    }
-
     /*
      * Regiters the component_id  into all the book keeping structures
      * 
@@ -167,8 +121,8 @@ impl<COMPONENT_TYPE,COMPONENT_ARRAY_TYPE> EntityManager<COMPONENT_TYPE,COMPONENT
         let component_type_map = self._ComponentTypeMapMut();
         let component_index_map = self._ComponentIndexMapMut();
 
-        component_type_map.insert(component_id,type_id.clone());
-        component_index_map.insert(component_id,component_index);
+        component_type_map.insert(component_id,type_id);
+        component_index_map.insert(component_id,index);
     
         return component_id;
     }
@@ -205,19 +159,19 @@ impl<COMPONENT_TYPE,COMPONENT_ARRAY_TYPE> EntityManager<COMPONENT_TYPE,COMPONENT
         }
     }
 
-    pub fn _EntitiesMut(&self) -> &mut HashMap<EntityId,Entity> {
+    fn _EntitiesMut(&self) -> &mut HashMap<EntityId,Entity> {
         unsafe{
             return &mut *self.entities.get();
         }
     }
 
-    pub fn _ComponentIndexMapMut(&self) -> &mut HashMap<ComponentId,usize> {
+    fn _ComponentIndexMapMut(&self) -> &mut HashMap<ComponentId,usize> {
         unsafe{
             return &mut *self.component_index_map.get();
         }
     }
 
-    pub fn _ComponentTypeMapMut(&self) -> &mut HashMap<ComponentId,TypeId> {
+    fn _ComponentTypeMapMut(&self) -> &mut HashMap<ComponentId,TypeId> {
         unsafe{
             return &mut *self.component_type_map.get();
         }
