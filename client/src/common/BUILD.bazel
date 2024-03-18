@@ -1,5 +1,7 @@
 load("@rules_rust//rust:defs.bzl", "rust_binary", "rust_library", "rust_proc_macro","rust_test")
 
+package(default_visibility = ["//visibility:public"])
+
 rust_proc_macro(
   name = "ecs_proc_macro",
   srcs = ["ecs_proc_macro.rs"],
@@ -13,6 +15,18 @@ rust_proc_macro(
 rust_library(
   name = "ecs",
   srcs = ["ecs.rs"],
+)
+
+rust_library(
+  name = "app_context",
+  srcs = ["app_context.rs"],
+  deps = [
+      "//cargo:winit",
+      "//cargo:raw_window_handle",
+      "//cargo:glutin",
+      "//cargo:glutin_winit",
+      "//client/src/render:gl_context",
+    ]
 )
 
 rust_test(

@@ -51,3 +51,20 @@ rust_binary(
       "//client/src/render:gl_context",
     ]
 )
+
+rust_binary(
+  name = "final_main",
+  srcs = ["src/final_main.rs"],
+  deps = [
+      "//client/src/common:ecs",
+      "//cargo:winit",
+      "//cargo:glutin",
+      "//cargo:glutin_winit",
+      "//cargo:glam",
+      "//assets:asset_rs",
+      "//client/src/common:app_context",
+  ],
+  proc_macro_deps = [
+    "//client/src/common:ecs_proc_macro",
+  ]
+)

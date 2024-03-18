@@ -162,14 +162,17 @@ impl<COMPONENT_TYPE,COMPONENT_ARRAY_TYPE> EntityManager<COMPONENT_TYPE,COMPONENT
      * This does not allocate the component. component_index must be a valid entry in the
      * ComponentArray
      */
-    pub fn RegisterComponent(&self,entity : EntityId, type_id : &TypeId, component_index : usize) -> ComponentId {
+    pub fn RegisterComponent(&self,entity_id : EntityId, type_id : &TypeId, component_index : usize) -> ComponentId {
         let component_id = self.GenComponentId();
         let component_type_map = self._ComponentTypeMapMut();
         let component_index_map = self._ComponentIndexMapMut();
+        let entities_map = self._EntitiesMut();
 
         component_type_map.insert(component_id,type_id.clone());
         component_index_map.insert(component_id,component_index);
-    
+        
+        let entity : &mut Entity = entities_map.get_mut(&entity_id).unwrap();
+        entity.components.insert(type_id.clone(),component_id);
         return component_id;
     }
 
