@@ -63,6 +63,7 @@ rust_binary(
       "//cargo:glam",
       "//assets:asset_rs",
       "//client/src/common:app_context",
+      "//client/src/common:key_manager",
   ],
   proc_macro_deps = [
     "//client/src/common:ecs_proc_macro",

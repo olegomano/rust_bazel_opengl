@@ -26,7 +26,18 @@ rust_library(
       "//cargo:glutin",
       "//cargo:glutin_winit",
       "//client/src/render:gl_context",
-    ]
+      ":key_manager"
+  ]
+)
+
+rust_library(
+  name = "key_manager",
+  srcs = ["key_manager.rs"],
+  deps = [
+    "//cargo:winit",
+    "//cargo:glutin",
+    "//cargo:glutin_winit",
+  ]
 )
 
 rust_test(

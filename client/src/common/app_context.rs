@@ -18,12 +18,15 @@ use glutin::surface::SwapInterval;
 use winit::event_loop::EventLoopBuilder;
 use glutin_winit::{self, DisplayBuilder, GlWindow};
 extern crate gl_context;
+extern crate key_manager;
 use gl_context::gl;
 
 
 
 pub trait App{
+    fn Init(&mut self);
     fn Tick(&mut self);
+    fn HandleKeyboard(&mut self, keyboard : &key_manager::KeyManager); 
 }
 
 pub struct Context<'a>{
@@ -40,7 +43,10 @@ impl<'a> Context<'a> {
 
     pub fn Run(&mut self) -> i32{ 
         let mut event_loop = EventLoopBuilder::new().build();
+        let mut key_manager = key_manager::KeyManager::new();
         let (gl_context,gl_config,gl_surface,window_context,window) = CreateGlContext(&event_loop);
+        
+        
         unsafe{
             gl_context.ClearColor(1.0, 1.0, 1.0, 1.0);
         }
@@ -59,7 +65,8 @@ impl<'a> Context<'a> {
                 Event::WindowEvent{event,..} =>{
                     match event{
                         WindowEvent::KeyboardInput{event, ..} => {
-                            println!("{:?}",event);
+                            key_manager.HandleInput(event);
+                            self.app.HandleKeyboard(&key_manager);
                         },
                         WindowEvent::Resized(size) => {
                             println!("Window has been resized");
