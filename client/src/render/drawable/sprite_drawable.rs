@@ -3,6 +3,8 @@ extern crate default_shader;
 extern crate vbo;
 extern crate drawable;
 use gl_context::gl;
+extern crate gl_error;
+use gl_error::CheckError;
 
 
 pub struct SpriteManager{

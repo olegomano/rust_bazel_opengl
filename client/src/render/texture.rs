@@ -1,6 +1,8 @@
 extern crate gl_context;
 extern crate gl_utils;
 extern crate asset;
+extern crate gl_error;
+use gl_error::CheckError;
 use gl_context::gl;
 use gl_context::gl::types::GLuint;
 

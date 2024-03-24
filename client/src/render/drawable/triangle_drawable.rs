@@ -3,6 +3,8 @@ extern crate shader;
 extern crate vbo;
 extern crate drawable;
 use gl_context::gl;
+extern crate gl_error;
+use gl_error::CheckError;
 
 pub static VERTEX_DATA_TRIS: [f32; 15] = [
     -0.5, -0.5,  1.0,  0.0,  0.0,

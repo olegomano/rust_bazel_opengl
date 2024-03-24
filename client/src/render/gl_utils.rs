@@ -15,13 +15,10 @@ pub fn timed(_attr: TokenStream, item: TokenStream) -> TokenStream {
         #vis #sig {
             let #start = ::std::time::Instant::now();
             let ret = #block;
-            
             ::std::println!("{} took: {:#?}", #fn_name, ::std::time::Instant::now().duration_since(#start));
-            
             ret
         }
     };
-
     TokenStream::from(expanded)
 }
 

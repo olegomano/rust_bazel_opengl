@@ -1,4 +1,6 @@
 extern crate gl_context;
+extern crate gl_error;
+use gl_error::CheckError;
 use gl_context::gl;
 
 #[derive(Clone)]

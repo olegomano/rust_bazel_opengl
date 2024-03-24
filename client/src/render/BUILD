@@ -12,6 +12,15 @@ rust_library(
   ]
 )
 
+rust_library(
+  name = "gl_error",
+  srcs = ["gl_error.rs"],
+  deps = [
+    "//client/src/render:gl_context",
+  ]
+)
+
+
 rust_proc_macro(
   name = "gl_utils",
   srcs = ["gl_utils.rs"],
@@ -122,17 +131,6 @@ rust_library(
   ]
 )
 
-
-rust_library(
-  name = "key_manager",
-  srcs = ["key_manager.rs"],
-  deps = [
-    "//cargo:winit",
-    "//cargo:glutin",
-    "//cargo:glutin_winit",
-  ]
-)
-
 rust_library(
   name = "texture",
   srcs = ["texture.rs"],
@@ -151,23 +149,4 @@ rust_library(
   deps = [
     "//client/src/render:gl_context",
   ]
-)
-
-
-rust_library(
-  name = "window",
-  srcs = ["window.rs"],
-  deps = [
-      "//client/src/render:gl_context",
-      "//cargo:winit",
-      "//cargo:glutin",
-      "//cargo:glam",
-      "//cargo:glutin_winit",
-      "//cargo:raw_window_handle",
-      ":key_manager",
-  ],
-  proc_macro_deps = [
-    ":gl_utils"
-  ]
-
 )

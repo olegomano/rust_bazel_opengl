@@ -12,7 +12,7 @@ struct EcsSystem{}
 
 impl app_context::App for EcsSystem{
     fn Init(&mut self){
-
+        let entity = ecs.entity_manager.NewEntity();
     }
 
     fn Tick(&mut self){
@@ -30,7 +30,6 @@ impl app_context::App for EcsSystem{
 
 fn main(){
     let mut ecs = EcsSystem::new();
-    let entity = ecs.entity_manager.NewEntity();
     
     let mut app_context = app_context::Context::new(&mut ecs);
     app_context.Run();
