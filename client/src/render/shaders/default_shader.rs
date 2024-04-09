@@ -41,22 +41,6 @@ const FRAGMENT_SHADER_SOURCE: &str= "
 
 
 
-unsafe fn CheckError(gl_context : &gl::Gl) -> Option<String>{
-    let err =  gl_context.GetError();
-    match err {
-        gl::NO_ERROR => {
-            return None;
-        } 
-        _ => {
-            return Some(format!(
-                "Gl Error:{}",err
-            ));    
-        }
-    }
-}
-
-
-
 struct PosAttribute{}
 impl shader::Attribute for PosAttribute{
     fn Name() -> &'static str {

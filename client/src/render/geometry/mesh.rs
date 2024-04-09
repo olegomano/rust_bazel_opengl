@@ -1,10 +1,12 @@
-extern crate glam;
-extern crate shader; 
 extern crate vbo;
-extern crate drawable;
-use gl_context::gl;
-extern crate gl_error;
+extern crate shader;
+extern crate material;
+extern crate gl_context;
+extern crate gl_utils;
+
 use gl_error::CheckError;
+use gl_context::gl;
+use gl_context::gl::types::GLuint;
 
 pub static VERTEX_DATA_TRIS: [f32; 15] = [
     -0.5, -0.5,  1.0,  0.0,  0.0,
@@ -73,85 +75,54 @@ const VERTEX_DATA_CUBE: [f32; 360] = [
     -0.5, -0.5, 0.5, 1.0, 0.0, 1.0, 0.0, 0.0, 0.0, 1.0,
 ];
 
-pub struct MeshDrawable {
-    vbo : vbo::Vbo,
-    pos_layout : shader::Layout,
-    uv_layout : shader::Layout,
-    transform : std::cell::Cell<glam::Mat4>,
-    texture : texture::Texture,
+
+#[derive(Clone)]
+pub struct Attribute{
+    data : vbo::Vbo,
+    layout : shader::Layout,
 }
+
 /*
- * Represents a mesh that has the following vertex format [x1,y1,z1,u,v]
- *
+ * Mesh is an owning object of graphics resources
+ * Other things should have refernces to Mesh
  */
-impl MeshDrawable {
-    pub fn new(buffer : &[f32], gl_context : &gl::Gl) -> Self{
-        let mut drawable = Self::default();
-        drawable.vbo.Load(gl_context,&buffer);
-        return drawable;    
-    }
-
-    pub fn new_tris(gl_context : &gl::Gl) -> Self{
-        return Self::new(&VERTEX_DATA_TRIS,gl_context);
-    }
-
-    pub fn new_rect(gl_context : &gl::Gl) -> Self{
-        return Self::new(&VERTEX_DATA_RECT,gl_context);
-    }
-    
-    pub fn new_cube(gl_context : &gl::Gl) -> Self{
-        return Self::new(&VERTEX_DATA_CUBE,gl_context);
-    }
-    
-    pub fn Load(&self, buffer : &[f32], gl_context : &gl::Gl){
-        self.vbo.Load(gl_context,buffer);
-    }
-    
-    pub fn SetTexture(&self,texture : &texture::Texture) {
-        self.texture.Update(texture.Handle());
-    }
-
-    pub fn UpdateTransform(&self,t : &glam::Mat4){
-        self.transform.set(*t);
-    }
-
-    pub fn default() -> Self{
-        return Self{
-            vbo : vbo::Vbo::new(),
-            pos_layout : shader::Layout{
-                count : 4,
-                stride : 10,
-                offset : 0,
-            },
-            uv_layout : shader::Layout{
-                count : 2,
-                stride : 10,
-                offset : 8,
-            },
-            texture : texture::Texture::default(),
-            transform : std::cell::Cell::new(glam::Mat4::IDENTITY),
-        }
-    }
+#[derive(Clone)]
+pub struct Mesh{
+   vertex : Attribute,
+   uv : Attribute,
+   normal : Attribute,
 }
 
-impl drawable::SpriteDrawable for MeshDrawable{
-    fn PosAttribute(&self) -> &shader::Layout {
-        return &self.pos_layout;
-    }
-
-    fn UvAttribute(&self) -> &shader::Layout {
-        return &self.uv_layout;
-    }
-
-    fn Buffer(&self) -> &vbo::Vbo {
-        return &self.vbo;
-    }
-    
-    fn Transform(&self) -> glam::Mat4{
-        return self.transform.get();
-    }
-
-    fn Texture(&self) -> &texture::Texture{
-        return &self.texture;
+impl Mesh{
+    pub fn NewCube(gl_context : &gl::Gl) -> Self{
+        let vbo_buffer = vbo::Vbo::new();
+        vbo_buffer.Load(gl_context,&VERTEX_DATA_CUBE);
+        
+        return Self{
+            vertex : Attribute{
+                data : vbo_buffer.clone(),
+                layout : shader::Layout{
+                    count : 4,
+                    stride : 10,
+                    offset : 0,
+                }
+            },
+            uv : Attribute{
+                data : vbo_buffer.clone(),
+                layout : shader::Layout{
+                    count :  2,
+                    stride : 10,
+                    offset : 8,
+                }
+            },
+            normal : Attribute{
+                data : vbo_buffer.clone(),
+                layout : shader::Layout{
+                    count :  4,
+                    stride : 10,
+                    offset : 4,
+                }
+            }
+        }
     }
 }

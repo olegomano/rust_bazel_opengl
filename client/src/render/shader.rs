@@ -2,8 +2,10 @@ use std::ffi::{CStr, CString};
 use std::ptr;
 extern crate gl_context;
 extern crate glam;
-use gl_context::gl;
 extern crate gl_utils;
+use gl_context::gl;
+extern crate gl_error;
+use gl_error::CheckError;
 
 #[gl_utils::gl_error]
 unsafe fn CreateProgram(gl_context : &gl::Gl, vertex_shader: &str, fragment_shader: &str) -> gl::types::GLuint{
@@ -41,21 +43,6 @@ unsafe fn CompileVertexShader(gl_context : &gl::Gl, source: &str) -> gl::types::
 
 unsafe fn CheckCompileError(gl_context : &gl::Gl) ->Option<String>{
     return None;
-}
-
-
-unsafe fn CheckError(gl_context : &gl::Gl) -> Option<String>{
-    let err =  gl_context.GetError();
-    match err {
-        gl::NO_ERROR => {
-            return None;
-        } 
-        _ => {
-            return Some(format!(
-                "Gl Error:{}",err
-            ));    
-        }
-    }
 }
 
 
@@ -131,6 +118,7 @@ pub trait Attribute{
  * Count: The amount of elements in each attribtue ( 2,3,4 )
  * Stride: 0 for tightly packed
  */
+#[derive(Copy,Clone)]
 pub struct Layout{
     pub count : i32,
     pub stride : usize,

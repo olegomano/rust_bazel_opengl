@@ -38,6 +38,7 @@ rust_library(
   deps = [
     "//cargo:glam",
     "//client/src/render:gl_context",
+    "//client/src/render:gl_error",
   ],
   proc_macro_deps = [
     ":gl_utils"
@@ -139,6 +140,7 @@ rust_library(
   ],
   deps = [
     "//client/src/render:gl_context",
+    "//client/src/render:gl_error",
     "//assets:asset",
   ]
 )
@@ -148,5 +150,6 @@ rust_library(
   srcs = ["vbo.rs"],
   deps = [
     "//client/src/render:gl_context",
+    "//client/src/render:gl_error",
   ]
 )

@@ -10,13 +10,29 @@ use winit::keyboard::Key;
 struct EcsSystem{}
 
 
-impl app_context::App for EcsSystem{
+struct AppInstance{
+    ecs_system : EcsSystem,
+}
+
+impl AppInstance{
+    pub fn new() -> Self{
+        return Self{
+            ecs_system : EcsSystem::new()
+        }   
+    }
+}
+
+impl app_context::App for AppInstance{
     fn Init(&mut self){
-        let entity = ecs.entity_manager.NewEntity();
+        let entity = self.ecs_system.entity_manager.NewEntity();
     }
 
     fn Tick(&mut self){
         println!("I am Tick");
+    }
+    
+    fn Render(&mut self){
+        println!("I am Render");
     }
 
     fn HandleKeyboard(&mut self, keyboard : &key_manager::KeyManager){ 
@@ -26,11 +42,8 @@ impl app_context::App for EcsSystem{
     }
 }
 
-
-
 fn main(){
-    let mut ecs = EcsSystem::new();
-    
-    let mut app_context = app_context::Context::new(&mut ecs);
+    let mut instance = AppInstance::new();
+    let mut app_context = app_context::Context::new(&mut instance);
     app_context.Run();
 }

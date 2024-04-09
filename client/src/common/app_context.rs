@@ -26,6 +26,7 @@ use gl_context::gl;
 pub trait App{
     fn Init(&mut self);
     fn Tick(&mut self);
+    fn Render(&mut self);
     fn HandleKeyboard(&mut self, keyboard : &key_manager::KeyManager); 
 }
 
@@ -60,6 +61,7 @@ impl<'a> Context<'a> {
                     unsafe{
                         gl_context.Clear(gl::COLOR_BUFFER_BIT | gl::DEPTH_BUFFER_BIT);
                     }
+                    self.app.Render();
                     gl_surface.swap_buffers(&window_context).unwrap();
                 },
                 Event::WindowEvent{event,..} =>{
