@@ -36,13 +36,13 @@ licenses([
 rust_library(
     name = "sctk_adwaita",
     srcs = glob(["**/*.rs"]),
+    compile_data = glob(["**/*.ttf"]),
     crate_features = [
         "ab_glyph",
         "memmap2",
     ],
     crate_root = "src/lib.rs",
     data = [],
-    compile_data = glob(["**/*.ttf"]),
     edition = "2021",
     rustc_flags = [
         "--cap-lints=allow",

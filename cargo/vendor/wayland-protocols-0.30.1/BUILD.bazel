@@ -34,6 +34,7 @@ licenses([
 rust_library(
     name = "wayland_protocols",
     srcs = glob(["**/*.rs"]),
+    compile_data = glob(["**"]),
     crate_features = [
         "client",
         "staging",
@@ -42,7 +43,6 @@ rust_library(
     ],
     crate_root = "src/lib.rs",
     data = [] + glob(["**"]),
-    compile_data = glob(["**"]),
     edition = "2018",
     proc_macro_deps = [
         "//cargo/vendor/wayland-scanner-0.30.1:wayland_scanner",

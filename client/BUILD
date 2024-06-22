@@ -10,32 +10,32 @@ cargo_build_script(
     srcs = ["build.rs"],
     # Optional environment variables passed during build.rs compilation
     rustc_env = {
-       "CARGO_PKG_VERSION": "0.1.2",
+        "CARGO_PKG_VERSION": "0.1.2",
     },
     deps = [
-      "//cargo:gl_generator",
-      "//cargo:cfg_aliases"
-    ]
+        "//cargo:cfg_aliases",
+        "//cargo:gl_generator",
+    ],
 )
 
 rust_binary(
-  name = "main",
-  srcs = ["src/final_main.rs"],
-  deps = [
-      "//client/src/common:ecs",
-      "//client/src/render/geometry:geometry",
-      "//client/src/render/geometry:material",
-      "//client/src/render:gl_context",
-      "//client/src/render/geometry:mesh",
-      "//cargo:winit",
-      "//cargo:glutin",
-      "//cargo:glutin_winit",
-      "//cargo:glam",
-      "//assets:asset_rs",
-      "//client/src/common:app_context",
-      "//client/src/common:key_manager",
-  ],
-  proc_macro_deps = [
-    "//client/src/common:ecs_proc_macro",
-  ]
+    name = "main",
+    srcs = ["src/final_main.rs"],
+    proc_macro_deps = [
+        "//client/src/common:ecs_proc_macro",
+    ],
+    deps = [
+        "//assets:asset_rs",
+        "//cargo:glam",
+        "//cargo:glutin",
+        "//cargo:glutin_winit",
+        "//cargo:winit",
+        "//client/src/common:app_context",
+        "//client/src/common:ecs",
+        "//client/src/common:key_manager",
+        "//client/src/render:gl_context",
+        "//client/src/render/geometry",
+        "//client/src/render/geometry:material",
+        "//client/src/render/geometry:mesh",
+    ],
 )

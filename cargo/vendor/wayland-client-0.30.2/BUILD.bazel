@@ -38,12 +38,12 @@ licenses([
 rust_library(
     name = "wayland_client",
     srcs = glob(["**/*.rs"]),
+    compile_data = glob(["**"]),
     crate_features = [
         "calloop",
     ],
     crate_root = "src/lib.rs",
     data = [] + glob(["**"]),
-    compile_data = glob(["**"]),
     edition = "2018",
     proc_macro_deps = [
         "//cargo/vendor/wayland-scanner-0.30.1:wayland_scanner",

@@ -3,64 +3,69 @@ load("@rules_rust//rust:defs.bzl", "rust_binary")
 load("@rules_rust//rust:defs.bzl", "rust_binary", "rust_library", "rust_proc_macro")
 load("@rules_rust//cargo:defs.bzl", "cargo_build_script")
 
-ASSET_LIST = glob(["image/**",])
+ASSET_LIST = glob(["image/**"])
+
 filegroup(
-      name = "asset_files",
-      srcs = ASSET_LIST,
-      visibility = [ "//visibility:public" ],
+    name = "asset_files",
+    srcs = ASSET_LIST,
+    visibility = ["//visibility:public"],
 )
 
 filegroup(
-  name = "asset_index_py_files",
-  srcs = glob([
-    "index/*.py"
-  ]),
-  visibility = [ "//visibility:public" ],
+    name = "asset_index_py_files",
+    srcs = glob([
+        "index/*.py",
+    ]),
+    visibility = ["//visibility:public"],
 )
 
 filegroup(
-  name = "asset_index_rs_files",
-  srcs = glob([
-    "index/*.rs"
-  ]),
-  visibility = [ "//visibility:public" ],
+    name = "asset_index_rs_files",
+    srcs = glob([
+        "index/*.rs",
+    ]),
+    visibility = ["//visibility:public"],
 )
 
 filegroup(
-  name = "gen_asset_rs_files",
-  srcs = glob([
-    "gen/*.rs"
-  ]),
-  visibility = [ "//visibility:public" ],
+    name = "gen_asset_rs_files",
+    srcs = glob([
+        "gen/*.rs",
+    ]),
+    visibility = ["//visibility:public"],
 )
 
 py_binary(
     name = "gen_assets",
-    srcs = ["gen_assets.py","rust_generator.py","img_loader.py"],
-    data = [":asset_files"],
-    deps = [
-      requirement("pypng")
+    srcs = [
+        "gen_assets.py",
+        "img_loader.py",
+        "rust_generator.py",
     ],
+    data = [":asset_files"],
     env = {
         "FILE_PATH": "$(rootpath :gen_assets.py)",
     },
+    deps = [
+        requirement("pypng"),
+    ],
 )
 
 rust_library(
-  name = "asset",
-  visibility = [ "//visibility:public" ],
-  srcs = [
-    "asset.rs"
-  ]
+    name = "asset",
+    srcs = [
+        "asset.rs",
+    ],
+    visibility = ["//visibility:public"],
 )
 
 rust_library(
-  name = "asset_rs",
-  visibility = [ "//visibility:public" ],
-  deps = [
-    ":asset"
-  ],
-  srcs = [
-    ":gen_asset_rs_files",
-  ]
+    name = "asset_rs",
+    srcs = [
+        ":gen_asset_rs_files",
+    ],
+    visibility = ["//visibility:public"],
+    deps = [
+        ":asset",
+    ],
 )

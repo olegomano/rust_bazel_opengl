@@ -1,52 +1,53 @@
 load("@pip_deps//:requirements.bzl", "requirement")
 load("@rules_rust//cargo:defs.bzl", "cargo_build_script")
 
-UI_FILE_LIST = glob(["ui/**",])
-ICON_FILE_LIST = glob(["icons/**",])
-filegroup(
-      name = "ui_files",
-      srcs = UI_FILE_LIST,
-      visibility = [ "//visibility:public" ],
-)
+UI_FILE_LIST = glob(["ui/**"])
+
+ICON_FILE_LIST = glob(["icons/**"])
 
 filegroup(
-      name = "icon_files",
-      srcs = ICON_FILE_LIST,
-      visibility = [ "//visibility:public" ],
+    name = "ui_files",
+    srcs = UI_FILE_LIST,
+    visibility = ["//visibility:public"],
+)
+
+filegroup(
+    name = "icon_files",
+    srcs = ICON_FILE_LIST,
+    visibility = ["//visibility:public"],
 )
 
 py_library(
-  name = "sprite",
-  srcs = ["sprite.py"]
+    name = "sprite",
+    srcs = ["sprite.py"],
 )
 
 py_library(
-  name = "mesh_tool",
-  srcs = ["tool/mesh_tool.py"],
-  deps = [
-    ":sprite"
-  ]
+    name = "mesh_tool",
+    srcs = ["tool/mesh_tool.py"],
+    deps = [
+        ":sprite",
+    ],
 )
 
 py_library(
-  name = "vertex_tool",
-  srcs = ["tool/vertex_tool.py"],
-  deps = [
-    ":sprite"
-  ]
+    name = "vertex_tool",
+    srcs = ["tool/vertex_tool.py"],
+    deps = [
+        ":sprite",
+    ],
 )
 
 py_binary(
     name = "editor",
-    srcs = ["editor.py"], 
-    deps = [
-      ":sprite",
-      ":mesh_tool",
-      ":vertex_tool",
-    ],
+    srcs = ["editor.py"],
     data = [
-      ":ui_files",
-      ":icon_files",
-    ]
+        ":icon_files",
+        ":ui_files",
+    ],
+    deps = [
+        ":mesh_tool",
+        ":sprite",
+        ":vertex_tool",
+    ],
 )
-

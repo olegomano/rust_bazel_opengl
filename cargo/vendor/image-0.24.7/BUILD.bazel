@@ -43,6 +43,7 @@ rust_library(
     aliases = {
         "//cargo/vendor/jpeg-decoder-0.3.0:jpeg_decoder": "jpeg",
     },
+    compile_data = glob(["**"]),
     crate_features = [
         "bmp",
         "dds",
@@ -65,7 +66,6 @@ rust_library(
     ],
     crate_root = "src/lib.rs",
     data = [] + glob(["**"]),
-    compile_data = glob(["**"]),
     edition = "2018",
     rustc_flags = [
         "--cap-lints=allow",
