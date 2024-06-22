@@ -55,7 +55,6 @@ rust_library(
     "//cargo:glam",
     ":shader",
     ":vbo",
-    ":drawable",
     ":texture",
   ],
   proc_macro_deps = [
@@ -73,65 +72,12 @@ rust_library(
     "//cargo:glam",
     ":shader",
     ":vbo",
-    ":drawable",
     ":texture",
   ],
   proc_macro_deps = [
     ":gl_utils"
   ]
 )
-
-
-
-
-rust_library(
-  name = "drawable",
-  srcs = ["drawable/drawable.rs"],
-  deps = [
-    "//client/src/render:gl_context",
-    "//cargo:glam",
-    ":shader",
-    ":vbo",
-    ":texture",
-  ],
-  proc_macro_deps = [
-    ":gl_utils"
-  ]
-)
-
-rust_library(
-  name = "triangle_drawable",
-  srcs = ["drawable/triangle_drawable.rs"],
-  deps = [
-    "//client/src/render:gl_context",
-    "//cargo:glam",
-    ":shader",
-    ":drawable",
-    ":vbo",
-    ":texture",
-  ],
-  proc_macro_deps = [
-    ":gl_utils"
-  ]
-)
-
-rust_library(
-  name = "sprite_manager",
-  srcs = ["drawable/sprite_manager.rs"],
-  deps = [
-    "//client/src/render:gl_context",
-    "//cargo:glam",
-    ":default_shader",
-    ":drawable",
-    ":vbo",
-    ":texture",
-    ":triangle_drawable",
-  ],
-  proc_macro_deps = [
-    ":gl_utils"
-  ]
-)
-
 rust_library(
   name = "texture",
   srcs = ["texture.rs"],

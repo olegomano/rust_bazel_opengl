@@ -192,7 +192,7 @@ impl<COMPONENT_TYPE,COMPONENT_ARRAY_TYPE> EntityManager<COMPONENT_TYPE,COMPONENT
             return *self.component_id.get();
         }
     }
-    
+
     pub fn Components(&self) -> &HashMap<TypeId,COMPONENT_ARRAY_TYPE> {
         unsafe { 
             return &*self.components.get(); 

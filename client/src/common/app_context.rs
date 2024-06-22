@@ -24,10 +24,10 @@ use gl_context::gl;
 
 
 pub trait App{
-    fn Init(&mut self);
-    fn Tick(&mut self);
-    fn Render(&mut self);
-    fn HandleKeyboard(&mut self, keyboard : &key_manager::KeyManager); 
+    fn Init(&mut self, gl_context :  &gl::Gl);
+    fn Tick(&mut self, gl_context : &gl::Gl);
+    fn Render(&mut self, gl_context : &gl::Gl);
+    fn HandleKeyboard(&mut self, keyboard : &key_manager::KeyManager,gl_context : &gl::Gl); 
 }
 
 pub struct Context<'a>{
@@ -47,7 +47,7 @@ impl<'a> Context<'a> {
         let mut key_manager = key_manager::KeyManager::new();
         let (gl_context,gl_config,gl_surface,window_context,window) = CreateGlContext(&event_loop);
         
-        
+        self.app.Init(&gl_context);
         unsafe{
             gl_context.ClearColor(1.0, 1.0, 1.0, 1.0);
         }
@@ -61,14 +61,14 @@ impl<'a> Context<'a> {
                     unsafe{
                         gl_context.Clear(gl::COLOR_BUFFER_BIT | gl::DEPTH_BUFFER_BIT);
                     }
-                    self.app.Render();
+                    self.app.Render(&gl_context);
                     gl_surface.swap_buffers(&window_context).unwrap();
                 },
                 Event::WindowEvent{event,..} =>{
                     match event{
                         WindowEvent::KeyboardInput{event, ..} => {
                             key_manager.HandleInput(event);
-                            self.app.HandleKeyboard(&key_manager);
+                            self.app.HandleKeyboard(&key_manager,&gl_context);
                         },
                         WindowEvent::Resized(size) => {
                             println!("Window has been resized");

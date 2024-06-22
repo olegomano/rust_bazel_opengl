@@ -1,7 +1,6 @@
 extern crate vbo;
 extern crate shader;
 extern crate gl_context;
-extern crate drawable;
 extern crate gl_utils;
 extern crate glam;
 extern crate gl_error;

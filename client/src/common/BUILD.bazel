@@ -40,6 +40,12 @@ rust_library(
   ]
 )
 
+rust_library(
+  name = "allocator",
+  srcs = ["allocator.rs"],
+  deps = []
+)
+
 rust_test(
   name = "ecs_test",
   srcs = ["test/ecs_test.rs"],
@@ -47,4 +53,10 @@ rust_test(
   proc_macro_deps =[
     ":ecs_proc_macro"
   ],
+)
+
+rust_test(
+  name = "allocator_test",
+  srcs = ["test/allocator_test.rs"],
+  deps = [":allocator"],
 )

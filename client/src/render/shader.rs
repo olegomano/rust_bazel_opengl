@@ -110,10 +110,6 @@ fn PrintError(gl_context : &gl::Gl){
     }
 }
 
-pub trait Attribute{
-    fn Name() -> &'static str;
-}
-
 /*
  * Count: The amount of elements in each attribtue ( 2,3,4 )
  * Stride: 0 for tightly packed
@@ -168,19 +164,18 @@ impl Shader{
         }
     }
     
-    
     #[gl_utils::gl_error]
-    pub fn BindAttrib<T : Attribute>(&self, gl_context : &gl::Gl) -> gl::types::GLint {
+    pub fn BindAttrib(&self, name : &'static str,gl_context : &gl::Gl) -> gl::types::GLint {
         unsafe{
-            return gl_context.GetAttribLocation(self.handle, T::Name().as_ptr() as *const _);
+            return gl_context.GetAttribLocation(self.handle, name.as_ptr() as *const _);
         }
     }
 
 
     #[gl_utils::gl_error]
-    pub fn BindUniform<T : Attribute>(&self, gl_context : &gl::Gl) -> gl::types::GLint {
+    pub fn BindUniform(&self, name : &'static str, gl_context : &gl::Gl) -> gl::types::GLint {
         unsafe{
-            return gl_context.GetUniformLocation(self.handle, T::Name().as_ptr() as *const _);
+            return gl_context.GetUniformLocation(self.handle, name.as_ptr() as *const _);
         }
     }
 

@@ -23,6 +23,10 @@ rust_binary(
   srcs = ["src/final_main.rs"],
   deps = [
       "//client/src/common:ecs",
+      "//client/src/render/geometry:geometry",
+      "//client/src/render/geometry:material",
+      "//client/src/render:gl_context",
+      "//client/src/render/geometry:mesh",
       "//cargo:winit",
       "//cargo:glutin",
       "//cargo:glutin_winit",
